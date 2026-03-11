@@ -15,8 +15,8 @@ import java.time.Instant;
 @Getter
 @DiscriminatorValue("PAGO_SUELDO")
 public class MovimientoPagoSueldo extends Movimiento {
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "pago_sueldo_id", nullable = true,
+    @ManyToOne(fetch = FetchType.LAZY,)
+    @JoinColumn(name = "pago_sueldo_id",
             foreignKey = @ForeignKey(name = "fk_mov_sueldo_pago"))
     private PagoSueldo pagoSueldo;
 
