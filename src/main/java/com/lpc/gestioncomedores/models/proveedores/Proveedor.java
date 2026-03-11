@@ -1,7 +1,6 @@
 package com.lpc.gestioncomedores.models.proveedores;
 
 
-import com.lpc.gestioncomedores.models.movimientos.childs.MovimientoPagoProveedor;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

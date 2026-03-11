@@ -16,8 +16,8 @@ import lombok.Setter;
 @DiscriminatorValue("PAGO_PROVEEDORES")
 public class MovimientoPagoProveedor extends Movimiento {
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "factura_id", nullable = false, unique = true)
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "factura_id", nullable = true, unique = true)
     private FacturaProveedor factura;
 
 
