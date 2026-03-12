@@ -21,7 +21,7 @@ public class MovimientoPagoSueldo extends Movimiento {
     private PagoSueldo pagoSueldo;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private EstadoMovimientoPagoSueldo estadoMovimientoPagoSueldo = EstadoMovimientoPagoSueldo.REGISTRADO;
 
     @ManyToOne(fetch = FetchType.LAZY)

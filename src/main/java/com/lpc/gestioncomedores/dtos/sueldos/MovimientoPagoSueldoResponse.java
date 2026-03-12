@@ -11,7 +11,6 @@ public record MovimientoPagoSueldoResponse(
         MedioPago medioPago,
         BigDecimal monto,
         Instant fechaHora,
-        String comentarios,
         String numeroOperacion,
         EstadoMovimientoPagoSueldo estadoMovimiento
 ) {

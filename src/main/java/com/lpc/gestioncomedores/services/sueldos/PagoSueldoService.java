@@ -103,8 +103,7 @@ public class PagoSueldoService {
         pago.agregarMovimientoParcial(
                 req.medioPago(),
                 req.montoParcial(),
-                req.numeroOperacion(),
-                req.comentarios()
+                req.numeroOperacion()
         );
 
         pago = pagoSueldoRepo.save(pago);
@@ -133,7 +132,6 @@ public class PagoSueldoService {
                 req.nuevoMedioPago(),
                 req.nuevoMontoParcial(),
                 req.nuevoNumeroOperacion(),
-                req.nuevoComentario(),
                 usuario,
                 req.motivo()
         );
@@ -238,7 +236,6 @@ public class PagoSueldoService {
                 m.getMedioPago(),
                 m.getMonto(),
                 m.getFechaHora(),
-                m.getComentarios(),
                 m.getNumeroOperacion(),
                 m.getEstadoMovimientoPagoSueldo()
         );
@@ -255,7 +252,7 @@ public class PagoSueldoService {
 
         }
 
-        Boolean allowed =
+        boolean allowed =
                 usuario.getRol() == UsuarioRol.ADMINISTRACION ||
                 usuario.getRol() == UsuarioRol.RECURSOS_HUMANOS;
 

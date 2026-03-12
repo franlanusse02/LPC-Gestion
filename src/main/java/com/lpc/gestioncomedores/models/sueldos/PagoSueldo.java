@@ -180,8 +180,7 @@ public class PagoSueldo {
     public void agregarMovimientoParcial(
             MedioPago medioPago,
             BigDecimal montoParcial,
-            String numeroOperacion,
-            String comentarios
+            String numeroOperacion
     ) {
 
         if (this.estado == EstadoPagoSueldo.ANULADO) {
@@ -213,7 +212,6 @@ public class PagoSueldo {
         mov.setMedioPago(medioPago);
         mov.setFechaHora(Instant.now());
         mov.setSentido(Sentido.EGRESO);
-        mov.setComentarios(comentarios);
         mov.setNumeroOperacion(numeroOperacion);
 
 
@@ -226,7 +224,6 @@ public class PagoSueldo {
             MedioPago nuevoMedioPago,
             BigDecimal nuevoMontoParcial,
             String nuevoNumeroOperacion,
-            String nuevoComentario,
             Usuario usuario,
             String motivo
     ) {
@@ -274,7 +271,6 @@ public class PagoSueldo {
         nuevo.setMedioPago(nuevoMedioPago);
         nuevo.setFechaHora(Instant.now());
         nuevo.setSentido(Sentido.EGRESO);
-        nuevo.setComentarios(nuevoComentario);
         nuevo.setNumeroOperacion(nuevoNumeroOperacion);
 
         this.movimientos.add(nuevo);
@@ -320,7 +316,6 @@ public class PagoSueldo {
         this.motivoAnulacion = motivo.trim();
     }
 }
-
 
 
 

@@ -9,9 +9,7 @@ import java.math.BigDecimal;
 
 public record AgregarMovimientoParcialRequest(
         @NotNull MedioPago medioPago,
-        @DecimalMin(value = "0.01", inclusive = true) @NotNull BigDecimal montoParcial,
-        @NotNull @NotBlank String numeroOperacion,
-        String comentarios
+        @DecimalMin(value = "0.01") @NotNull BigDecimal montoParcial,
+        @NotNull @NotBlank String numeroOperacion
         ) {
 }
-
