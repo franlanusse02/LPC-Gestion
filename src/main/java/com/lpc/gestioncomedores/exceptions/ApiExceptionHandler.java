@@ -22,8 +22,7 @@ public class ApiExceptionHandler {
             BadRequestException.class,
             MethodArgumentNotValidException.class,
             ConstraintViolationException.class,
-            HttpMessageNotReadableException.class,
-            InvalidDateRangeException.class
+            HttpMessageNotReadableException.class
     })
     public ResponseEntity<?> handleBadRequest(Exception ex) {
         return ResponseEntity.status(400).body(Map.of("error", ex.getMessage()));
