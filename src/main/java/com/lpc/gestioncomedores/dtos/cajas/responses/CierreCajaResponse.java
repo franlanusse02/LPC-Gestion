@@ -20,8 +20,8 @@ public record CierreCajaResponse(
         Long anuladoPorId,
         String motivoAnulacion,
         BigDecimal totalCierre,
-        List<CierreCajaLineasResponse> lineas,
-        List<MovimientoCajaResponse> movimientos
-
+        List<CierreCajaLineaResponse> lineas,
+        List<MovimientoCajaResponse> movimientos,
+        Integer totalPlatosVendidos
 ) {
 }

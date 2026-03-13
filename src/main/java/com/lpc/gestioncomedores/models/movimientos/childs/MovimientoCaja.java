@@ -30,7 +30,7 @@ public class MovimientoCaja extends Movimiento {
     private CategoriaCaja categoria;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_mov_caja_empleado"))
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_mov_caja_usuario"))
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -75,6 +75,8 @@ public class MovimientoCaja extends Movimiento {
             throw new BadRequestException("MedioPago no puede ser null.");
         } else if (fechaHora == null) {
             throw new BadRequestException("fechaHora no puede ser null.");
+        } else if (!puntoDeVenta.getComedor().getId().equals(comedor.getId())) {
+            throw new BadRequestException("PuntoDeVenta no pertenece al comedor indicado.");
         }
 
         MovimientoCaja mov = new MovimientoCaja();
@@ -117,6 +119,8 @@ public class MovimientoCaja extends Movimiento {
             throw new BadRequestException("MedioPago no puede ser null.");
         } else if (fechaHora == null) {
             throw new BadRequestException("fechaHora no puede ser null.");
+        } else if (!puntoDeVenta.getComedor().getId().equals(comedor.getId())) {
+            throw new BadRequestException("PuntoDeVenta no pertenece al comedor indicado.");
         }
 
         MovimientoCaja mov = new MovimientoCaja();

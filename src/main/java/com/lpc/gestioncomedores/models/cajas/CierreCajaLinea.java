@@ -4,8 +4,6 @@ package com.lpc.gestioncomedores.models.cajas;
 import com.lpc.gestioncomedores.exceptions.childs.BadRequestException;
 import com.lpc.gestioncomedores.models.enums.EstadoCierreCajaLinea;
 import com.lpc.gestioncomedores.models.enums.MedioPago;
-import com.lpc.gestioncomedores.models.enums.ModoPagoEventoCaja;
-import com.lpc.gestioncomedores.models.enums.TipoVentaCaja;
 import com.lpc.gestioncomedores.models.personas.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,8 +12,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@AllArgsConstructor
 @Getter
+@NoArgsConstructor
 @Table(
         name = "cierre_caja_lineas"
 )
@@ -51,10 +49,7 @@ public class CierreCajaLinea {
 
     // METHODS
 
-    protected CierreCajaLinea () {
-        //JPA
-    }
-    //TODO: CHECK IF REMOVE
+
     private CierreCajaLinea (
             BigDecimal monto,
             MedioPago medioPago
@@ -70,29 +65,30 @@ public class CierreCajaLinea {
     }
 
 
-    public CierreCajaLinea crear(
+    public static CierreCajaLinea crear(
             BigDecimal monto,
             MedioPago medioPago
     ){
-        if (monto == null) {
-            throw new BadRequestException("Monto no puede ser null.");
-        }else if (medioPago == null) {
+        if (medioPago == null) {
             throw new BadRequestException("Medio de pago no puede ser null");
         }
+        validarMontoPositivo(monto);
 
         return new CierreCajaLinea(monto, medioPago);
     }
 
-    public void anular(Usuario usuario, String motivo){
+    public void anularLinea(Usuario usuario, String motivo){
         if (usuario == null) {
             throw new BadRequestException("Usuario no puede ser null.");
-        } else if (motivo == null) {
-            throw new BadRequestException("Motivo no puede ser null");
+        } else if (motivo == null || motivo.isBlank()) {
+            throw new BadRequestException("Motivo no puede estar vacio.");
+        } else if (this.estado == EstadoCierreCajaLinea.ANULADA) {
+            throw new IllegalStateException("No se puede anular una linea ya anulada.");
         }
 
         this.estado = EstadoCierreCajaLinea.ANULADA;
         this.anuladoPor = usuario;
-        this.motivoAnulacion = motivo;
+        this.motivoAnulacion = trimToNull(motivo);
         this.anuladoEn = Instant.now();
     }
 
@@ -108,23 +104,27 @@ public class CierreCajaLinea {
 
     }
 
-    public boolean estaActiva(){
+    public boolean estaActivaLinea(){
         return this.estado == EstadoCierreCajaLinea.ACTIVA;
     }
 
     public void actualizarMonto(BigDecimal monto) {
-        if (monto == null) {
-            throw new BadRequestException("Monto no puede ser null.");
-        }
-
+        validarMontoPositivo(monto);
         this.monto = monto;
     }
 
 
-    public String trimToNull(String string) {
-
+    private static String trimToNull(String value) {
+        if (value == null) return null;
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
+    private static void validarMontoPositivo(BigDecimal monto) {
+        if (monto == null || monto.signum() <= 0) {
+            throw new BadRequestException("Monto debe ser mayor a 0.");
+        }
+    }
 
 
 

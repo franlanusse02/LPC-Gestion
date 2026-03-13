@@ -4,6 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record AnularCierreCajaRequest(
-        @NotNull @NotBlank String motivo
-) {
+        @NotBlank @NotNull String motivo
+        ) {
 }

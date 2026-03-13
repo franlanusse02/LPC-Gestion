@@ -1,24 +1,22 @@
 package com.lpc.gestioncomedores.services.cajas;
 
+
 import com.lpc.gestioncomedores.dtos.cajas.requests.*;
-import com.lpc.gestioncomedores.dtos.cajas.responses.CierreCajaLineasResponse;
+import com.lpc.gestioncomedores.dtos.cajas.responses.CierreCajaLineaResponse;
 import com.lpc.gestioncomedores.dtos.cajas.responses.CierreCajaResponse;
 import com.lpc.gestioncomedores.dtos.cajas.responses.MovimientoCajaResponse;
 import com.lpc.gestioncomedores.exceptions.childs.BadRequestException;
 import com.lpc.gestioncomedores.exceptions.childs.ForbiddenException;
 import com.lpc.gestioncomedores.exceptions.childs.NotFoundException;
-import com.lpc.gestioncomedores.exceptions.childs.UnauthorizedException;
 import com.lpc.gestioncomedores.models.cajas.CierreCaja;
 import com.lpc.gestioncomedores.models.cajas.CierreCajaLinea;
 import com.lpc.gestioncomedores.models.comedores.Comedor;
 import com.lpc.gestioncomedores.models.comedores.PuntoDeVenta;
-import com.lpc.gestioncomedores.models.enums.EstadoCierreCaja;
 import com.lpc.gestioncomedores.models.enums.UsuarioRol;
 import com.lpc.gestioncomedores.models.movimientos.childs.MovimientoCaja;
 import com.lpc.gestioncomedores.models.personas.Usuario;
 import com.lpc.gestioncomedores.repositories.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,357 +35,302 @@ public class MovimientoCajaService {
 
 
     // METHODS
-
     @Transactional
-    public CierreCajaResponse create(CrearCierreCajaRequest req, Long usuarioId) {
-        validarCreateRequest(req);
-        Usuario usuario = getUsuarioOrThrow(usuarioId);
-        assertCanManageCaja(usuario);
-        validarExistsDuplicate(req);
-        Comedor comedor = getComedorOrThrow(req.comedorId());
-        PuntoDeVenta puntoDeVenta = getPuntoVentaOrThrow(req.puntoVentaId());
-
-        if (!puntoDeVenta.getComedor().getId().equals(comedor.getId())) {
-            throw new BadRequestException("El punto de venta no pertenece al comedor indicado");
+    public CierreCajaResponse crearCierre(CrearCierreCajaRequest req, Long usuarioId) {
+        if (req == null) {
+            throw new BadRequestException("CrearCierreCajaRequest no puede ser null.");
+        } else if (usuarioId == null) {
+            throw new BadRequestException("Usuario Id no puede ser null");
         }
+        assertCanAddCaja(usuarioId);
 
-        CierreCaja cierre = CierreCaja.create(
+        Comedor comedor = comedorRepo.findById(req.comedorId())
+                .orElseThrow(() -> new NotFoundException("No se encontro el comedor"));
+        PuntoDeVenta puntoDeVenta = puntoVentaRepo.findById(req.puntoVentaId())
+                .orElseThrow(() -> new NotFoundException("No se encontro el punto de venta"));
+
+        Usuario usuario = usuarioRepo.findById(usuarioId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el usuario."));
+
+        CierreCaja cierre = CierreCaja.crear(
                 comedor,
                 puntoDeVenta,
                 req.fechaOperacion(),
                 usuario,
-                Instant.now(),
-                req.observaciones()
+                req.observaciones(),
+                req.totalPlatosVendidos()
         );
-
         cierreCajaRepo.save(cierre);
-
-        return toResponse(cierre);
-
-    }
-
-    public CierreCajaResponse getById(Long id) {
-        CierreCaja cierre = getCierreOrThrow(id);
-        return toResponse(cierre);
-    }
-
-    @Transactional
-    public CierreCajaResponse agregarLinea(Long cierreId, AgregarLineaCierreCajaRequest req, Long usuarioId) {
-        Usuario usuario = getUsuarioOrThrow(usuarioId);
-        assertCanManageCaja(usuario);
-        CierreCaja cierre = getCierreOrThrowForUpdate(cierreId);
-        CierreCajaLinea linea = buildLineaFromRequest(req);
-        cierre.agregarLinea(linea);
-        cierreCajaRepo.save(cierre);
-
-
-
         return toResponse(cierre);
 
 
     }
-
-    @Transactional
-    public CierreCajaResponse reemplazarLinea(Long cierreId, ReemplazarLineaCierreCajaRequest req, Long usuarioId) {
-        Usuario usuario = getUsuarioOrThrow(usuarioId);
-        assertCanManageCaja(usuario);
-        CierreCaja cierre = getCierreOrThrowForUpdate(cierreId);
-        CierreCajaLinea linea = buildLineaFromRequest(req);
-        cierre.anularLinea(req.lineaIdOriginal(), usuario, req.motivo());
-        cierre.agregarLinea(linea);
-        cierreCajaRepo.save(cierre);
-
-
-
-        return toResponse(cierre);
-    }
-
-    @Transactional
-    public CierreCajaResponse anularLinea(Long cierreId, AnularLineaCierreCajaRequest req, Long usuarioId) {
-        Usuario usuario = getUsuarioOrThrow(usuarioId);
-        CierreCaja cierre = getCierreOrThrowForUpdate(cierreId);
-        if (req == null) {
-            throw new BadRequestException("Request no puede ser null.");
+    public CierreCajaResponse getCierreById(Long cierreId) {
+        if (cierreId == null) {
+            throw new BadRequestException("Cierre Id no puede ser null");
         }
 
-        assertCanManageCaja(usuario);
-
-        cierre.anularLinea(req.lineaId(), usuario, req.motivo());
-        cierreCajaRepo.save(cierre);
-        return toResponse(cierre);
-    }
-
-    @Transactional
-    public CierreCajaResponse anular(Long cierreId, AnularCierreCajaRequest req, Long usuarioId) {
-        Usuario usuario = getUsuarioOrThrow(usuarioId);
-        CierreCaja cierre = getCierreOrThrowForUpdate(cierreId);
-        if (req == null) {
-            throw new BadRequestException("Request no puede ser null.");
-        }
-
-        assertCanManageCaja(usuario);
-
-        cierre.anular(usuario, req.motivo());
-        cierreCajaRepo.save(cierre);
-
-        return toResponse(cierre);
-    }
-
-    @Transactional
-    public CierreCajaResponse cerrar(Long cierreId, Long usuarioId) {
-        Usuario usuario = getUsuarioOrThrow(usuarioId);
-        CierreCaja cierre = getCierreOrThrowForUpdate(cierreId);
-
-        assertCanManageCaja(usuario);
-
-        cierre.cerrar();
-        cierreCajaRepo.save(cierre);
-        return toResponse(cierre);
-    }
-
-    @Transactional
-    public MovimientoCajaResponse crearMovimientoAporte(CrearMovimientoCajaAporteRequest req, Long usuarioId) {
-        if (req == null) {
-            throw new BadRequestException("Request no puede ser null.");
-        }
-
-        Usuario usuario = getUsuarioOrThrow(usuarioId);
-        assertCanManageCaja(usuario);
-
-        Comedor comedor = getComedorOrThrow(req.comedorId());
-        PuntoDeVenta puntoDeVenta = getPuntoVentaOrThrow(req.puntoVentaId());
-
-        if (!puntoDeVenta.getComedor().getId().equals(comedor.getId())) {
-            throw new BadRequestException("El punto de venta no pertenece al comedor indicado.");
-        }
-
-        MovimientoCaja movimiento = MovimientoCaja.createAporte(
-                comedor,
-                puntoDeVenta,
-                usuario,
-                req.monto(),
-                req.medioPago(),
-                Instant.now(),
-                req.comentarios()
-        );
-
-        movimiento = movimientoCajaRepo.save(movimiento);
-        return toMovimientoResponse(movimiento);
-    }
-    @Transactional
-    public CierreCajaResponse actualizarObservaciones(
-            Long cierreId,
-            ActualizarObservacionesCierreCajaRequest req,
-            Long usuarioId
-    ) {
-        if (req == null) {
-            throw new BadRequestException("Request no puede ser null.");
-        }
-
-        Usuario usuario = getUsuarioOrThrow(usuarioId);
-        assertCanManageCaja(usuario);
-
-        CierreCaja cierre = getCierreOrThrowForUpdate(cierreId);
-
-        cierre.actualizarObservaciones(req.observaciones());
-
-        cierre = cierreCajaRepo.save(cierre);
+        CierreCaja cierre = cierreCajaRepo.findById(cierreId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el cierre"));
         return toResponse(cierre);
     }
 
     public List<CierreCajaResponse> getAllCierres() {
-        return cierreCajaRepo.findAll(
-                        Sort.by(Sort.Direction.DESC, "fechaOperacion")
-                                .and(Sort.by(Sort.Direction.DESC, "id"))
-                ).stream()
+        return cierreCajaRepo.findAll().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public List<MovimientoCajaResponse> getAllMovimientos(Long usuarioId) {
-        Usuario usuario = getUsuarioOrThrow(usuarioId);
-        assertCanManageCaja(usuario);
-
-        return movimientoCajaRepo.findAll(
-                Sort.by(Sort.Direction.DESC, "fechaHora")
-                        .and(Sort.by(Sort.Direction.DESC, "id"))
-        ).stream().map(this::toMovimientoResponse).toList();
-    }
-
-
-    // PRIVATE HELPER METHODS
-
-    private CierreCaja getCierreOrThrow(Long id) {
-        if (id == null) {
-            throw new BadRequestException("Id no puede ser null.");
-        }
-        return cierreCajaRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException("CierreCaja no encontrado."));
-    }
-
-    private CierreCaja getCierreOrThrowForUpdate(Long id) {
-        if (id == null) {
-            throw new BadRequestException("Id no puede ser null.");
-        }
-        return cierreCajaRepo.findByIdForUpdate(id)
-                .orElseThrow(() -> new NotFoundException("CierreCaja no encontrado."));
-    }
-
-    private Usuario getUsuarioOrThrow(Long userId) {
-        if (userId == null) {
-            throw new BadRequestException("UsuarioId no puede ser null.");
-        }
-        return usuarioRepo.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Usuario no encontrado."));
-    }
-
-    private Comedor getComedorOrThrow(Long comedorId) {
-        if (comedorId == null) {
-            throw new BadRequestException("ComedorId no puede ser null.");
-        }
-        return comedorRepo.findById(comedorId)
-                .orElseThrow(() -> new NotFoundException("Comedor no encontrado."));
-    }
-
-    private PuntoDeVenta getPuntoVentaOrThrow(Long puntoVentaId) {
-        if (puntoVentaId == null) {
-            throw new BadRequestException("PuntoDeVentaId no puede ser null.");
-        }
-        return puntoVentaRepo.findById(puntoVentaId)
-                .orElseThrow(() -> new NotFoundException("PuntoDeVenta no encontrado."));
-    }
-
-    private void validarCreateRequest(CrearCierreCajaRequest req) {
+    @Transactional
+    public CierreCajaResponse actualizarObservaciones(
+            ActualizarObservacionesCierreCajaRequest req,
+            Long cierreId,
+            Long usuarioId
+    ){
         if (req == null) {
-            throw new BadRequestException("Request no puede ser null.");
+            throw new BadRequestException("Request no puede ser null");
+        } else if (cierreId == null) {
+            throw new BadRequestException("Cierre Id no puede ser null");
+        }else if (usuarioId == null) {
+            throw new BadRequestException("Usuario id no puede ser null.");
         }
+        CierreCaja cierre = cierreCajaRepo.findById(cierreId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el cierre."));
+
+        assertCanManageCaja(usuarioId);
+
+        cierre.actualizarObservaciones(req.observaciones());
+        cierreCajaRepo.save(cierre);
+        return toResponse(cierre);
     }
 
-    private void validarExistsDuplicate(CrearCierreCajaRequest req) {
-        boolean duplicado = cierreCajaRepo.existsByComedorIdAndPuntoDeVentaIdAndFechaOperacionAndEstadoNot(
-                req.comedorId(),
-                req.puntoVentaId(),
-                req.fechaOperacion(),
-                EstadoCierreCaja.ANULADO
-        );
-        if (duplicado) {
-            throw new BadRequestException("Ya existe un cierre para ese comedor, punto de venta y fecha.");
-        }
-    }
-
-    private void assertCanManageCaja(Usuario usuario) {
-        if (usuario == null) {
-            throw new UnauthorizedException("Usuario no autenticado.");
-        } else if (usuario.getRol() == null) {
-            throw new ForbiddenException("Rol no configurado para el usuario.");
-        }
-
-        boolean allowed =
-                usuario.getRol() == UsuarioRol.ADMINISTRACION ||
-                        usuario.getRol() == UsuarioRol.RECURSOS_HUMANOS;
-
-        if (!allowed) {
-            throw new ForbiddenException("El usuario no tiene permisos para gestionar caja.");
-        }
-    }
-
-    private CierreCajaLinea buildLineaFromRequest(AgregarLineaCierreCajaRequest req) {
+    @Transactional
+    public CierreCajaResponse actualizarTotalPlatosVendidos(
+            ActualizarTotalPlatosVendidosRequest req,
+            Long cierreId,
+            Long usuarioId
+    ) {
         if (req == null) {
-            throw new BadRequestException("Request no puede ser null.");
+            throw new BadRequestException("Request no puede ser null");
+        } else if (cierreId == null) {
+            throw new BadRequestException("Cierre Id no puede ser null");
+        }else if (usuarioId == null) {
+            throw new BadRequestException("Usuario id no puede ser null.");
         }
 
-        return CierreCajaLinea.create(
-                req.tipoVenta(),
-                req.monto(),
-                req.precioMenuUnitarioSnapshot(),
-                req.cobradoEvento(),
-                req.modoPagoEvento(),
-                req.numeroOperacion(),
-                req.numeroOrdenEvento(),
-                req.cantidadPaxEvento(),
-                req.lugarPisoEvento()
-        );
+        CierreCaja cierre = cierreCajaRepo.findById(cierreId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el cierre."));
+        assertCanAddCaja(usuarioId);
+
+        cierre.actualizarTotalPlatosVendidos(req.totalPlatosVendidos());
+        cierreCajaRepo.save(cierre);
+        return toResponse(cierre);
     }
 
-    private CierreCajaLinea buildLineaFromRequest(ReemplazarLineaCierreCajaRequest req) {
+    @Transactional
+    public CierreCajaResponse agregarLineaACierre(
+            AgregarLineaCierreCajaRequest req,
+            Long cierreId,
+            Long usuarioId
+    ){
         if (req == null) {
-            throw new BadRequestException("Request no puede ser null.");
+            throw new BadRequestException("Request no puede ser null");
+        } else if (cierreId == null) {
+            throw new BadRequestException("Cierre Id no puede ser null");
+        }else if (usuarioId == null) {
+            throw new BadRequestException("Usuario id no puede ser null.");
         }
 
-        return CierreCajaLinea.create(
-                req.tipoVenta(),
-                req.monto(),
-                req.precioMenuUnitarioSnapshot(),
-                req.cobradoEvento(),
-                req.modoPagoEvento(),
-                req.numeroOperacion(),
-                req.numeroOrdenEvento(),
-                req.cantidadPaxEvento(),
-                req.lugarPisoEvento()
-        );
+        CierreCaja cierre = cierreCajaRepo.findById(cierreId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el cierre."));
+        assertCanAddCaja(usuarioId);
+
+        CierreCajaLinea linea = CierreCajaLinea.crear(req.monto(), req.medioPago());
+
+        cierre.agregarLinea(linea);
+        cierreCajaRepo.save(cierre);
+        return toResponse(cierre);
     }
 
-    private CierreCajaResponse toResponse(CierreCaja c) {
+    @Transactional
+    public CierreCajaResponse reemplazarLineaCierreCaja(
+            ReemplazarLineaCierreCajaRequest req,
+            Long cierreId,
+            Long usuarioId
+    ){
+        if (req == null) {
+            throw new BadRequestException("Request no puede ser null");
+        } else if (cierreId == null) {
+            throw new BadRequestException("Cierre Id no puede ser null");
+        }else if (usuarioId == null) {
+            throw new BadRequestException("Usuario id no puede ser null.");
+        }
+        Usuario usuario = usuarioRepo.findById(usuarioId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el usuario."));
+        CierreCaja cierre = cierreCajaRepo.findById(cierreId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el cierre."));
+        assertCanAddCaja(usuarioId);
+
+        CierreCajaLinea linea = CierreCajaLinea.crear(req.monto(), req.medioPago());
+
+        cierre.reemplazarLinea(linea, req.lineaViejaId(), usuario, req.motivo());
+        cierreCajaRepo.save(cierre);
+        return toResponse(cierre);
+    }
+
+    public CierreCajaLineaResponse anularLineaDeCierre(
+            AnularLineaCierreCajaRequest req,
+            Long cierreId,
+            Long usuarioId
+
+    ){
+        if (req == null) {
+            throw new BadRequestException("Request no puede ser null");
+        } else if (cierreId == null) {
+            throw new BadRequestException("Cierre Id no puede ser null");
+        }else if (usuarioId == null) {
+            throw new BadRequestException("Usuario id no puede ser null.");
+        }
+        Usuario usuario = usuarioRepo.findById(usuarioId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el usuario."));
+        CierreCaja cierre = cierreCajaRepo.findById(cierreId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el cierre."));
+        assertCanAddCaja(usuarioId);
+
+        CierreCajaLinea linea = cierre.getLineas().stream()
+                .filter(l -> req.lineaId().equals(l.getId()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("No se encontro la linea"));
+
+        linea.anularLinea(usuario, req.motivo());
+        cierreCajaRepo.save(cierre);
+        return toResponse(linea);
+    }
+
+    public CierreCajaResponse finalizarCierre(Long cierreId, Long usuarioId) {
+        if (cierreId == null) {
+            throw new BadRequestException("Cierre Id no puede ser null");
+        }else if (usuarioId == null) {
+            throw new BadRequestException("Usuario id no puede ser null.");
+        }
+        assertCanManageCaja(usuarioId);
+
+        CierreCaja cierre = cierreCajaRepo.findById(cierreId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el cierre."));
+
+        cierre.finalizarCierre();
+
+        cierreCajaRepo.save(cierre);
+        return toResponse(cierre);
+    }
+
+    public CierreCajaResponse anularCierre(AnularCierreCajaRequest req, Long cierreId, Long usuarioId) {
+        if (req == null) {
+            throw new BadRequestException("Request no puede ser null");
+        } else if (cierreId == null) {
+            throw new BadRequestException("Cierre Id no puede ser null");
+        }else if (usuarioId == null) {
+            throw new BadRequestException("Usuario id no puede ser null.");
+        }
+        assertCanManageCaja(usuarioId); //TODO: CHECK IF ENCARGADOS CAN
+
+        CierreCaja cierre = cierreCajaRepo.findById(cierreId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el cierre."));
+
+        Usuario usuario = usuarioRepo.findById(usuarioId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el usuario."));
+
+        cierre.anular(usuario, req.motivo());
+        cierreCajaRepo.save(cierre);
+        return toResponse(cierre);
+    }
+
+    public List<MovimientoCajaResponse> getAllMovimientosCaja() {
+        return movimientoCajaRepo.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+
+    //HELPER METHODS
+
+    private void assertCanManageCaja(Long usuarioId) {
+        Usuario usuario = usuarioRepo.findById(usuarioId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el usuario."));
+
+        UsuarioRol rol = usuario.getRol();
+        if (rol != UsuarioRol.ADMINISTRACION && rol != UsuarioRol.WEB_ADMIN) {
+            throw new ForbiddenException("No tienes permiso para manejar cierres creados.");
+        }
+    }
+
+    private void assertCanAddCaja(Long usuarioId) {
+        Usuario usuario = usuarioRepo.findById(usuarioId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el usuario."));
+
+        UsuarioRol rol = usuario.getRol();
+        if (rol != UsuarioRol.ADMINISTRACION && rol != UsuarioRol.ENCARGADO && rol != UsuarioRol.WEB_ADMIN) {
+            throw new ForbiddenException("No tienes permiso para crear cierres.");
+        }
+    }
+
+    private CierreCajaResponse toResponse(CierreCaja cierre) {
         return new CierreCajaResponse(
-                c.getId(),
-                c.getComedor().getId(),
-                c.getPuntoDeVenta().getId(),
-                c.getFechaOperacion(),
-                c.getCreadoEn(),
-                c.getCreadoPor().getId(),
-                c.getEstado(),
-                c.getObservaciones(),
-                c.getAnuladoEn(),
-                c.getAnuladoPor() != null ? c.getAnuladoPor().getId() : null,
-                c.getMotivoAnulacion(),
-                c.calcularTotalCierre(),
-                c.getLineas().stream()
-                        .map(this::toLineaResponse)
+                cierre.getId(),
+                cierre.getComedor().getId(),
+                cierre.getPuntoDeVenta().getId(),
+                cierre.getFechaOperacion(),
+                cierre.getCreadoEn(),
+                cierre.getCreadoPor().getId(),
+                cierre.getEstado(),
+                cierre.getObservaciones(),
+                cierre.getAnuladoEn(),
+                cierre.getAnuladoPor() != null ? cierre.getAnuladoPor().getId() : null,
+                cierre.getMotivoAnulacion(),
+                cierre.calcularMontoTotal(),
+                cierre.getLineas().stream()
+                        .map(this::toResponse)
                         .toList(),
-                c.getMovimientos().stream()
-                        .map(this::toMovimientoResponse)
-                        .toList()
+                cierre.getMovimientos().stream()
+                        .map(this::toResponse)
+                        .toList(),
+                cierre.getTotalPlatosVendidos()
         );
     }
 
-    private CierreCajaLineasResponse toLineaResponse(CierreCajaLinea l) {
-        return new CierreCajaLineasResponse(
-                l.getId(),
-                l.getTipoVenta(),
-                l.getMonto(),
-                l.getPrecioMenuUnitarioSnapshot(),
-                l.getCobradoEvento(),
-                l.getModoPagoEvento(),
-                l.getNumeroOperacion(),
-                l.getNumeroOrdenEvento(),
-                l.getCantidadPaxEvento(),
-                l.getLugarPisoEvento(),
-                l.getEstado(),
-                l.getClaveUnicaCierreLinea(),
-                l.getAnuladoEn(),
-                l.getAnuladoPor() != null ? l.getAnuladoPor().getId() : null,
-                l.getMotivoAnulacion()
+    private CierreCajaLineaResponse toResponse(CierreCajaLinea linea) {
+        return new CierreCajaLineaResponse(
+                linea.getId(),
+                linea.getMedioPago(),
+                linea.getMonto(),
+                linea.getEstado(),
+                linea.getAnuladoEn(),
+                linea.getAnuladoPor() != null ? linea.getAnuladoPor().getId() : null,
+                linea.getMotivoAnulacion()
         );
     }
 
-    private MovimientoCajaResponse toMovimientoResponse(MovimientoCaja m) {
+    private MovimientoCajaResponse toResponse(MovimientoCaja movimiento) {
         return new MovimientoCajaResponse(
-                m.getId(),
-                m.getPuntoDeVenta() != null ? m.getPuntoDeVenta().getId() : null,
-                m.getCategoria(),
-                m.getUsuario() != null ? m.getUsuario().getId() : null,
-                m.getCierreCaja() != null ? m.getCierreCaja().getId() : null,
-                m.getMonto(),
-                m.getMedioPago(),
-                m.getSentido(),
-                m.getFechaHora(),
-                m.getComentarios(),
-                m.getEstadoMovimientoCaja(),
-                m.getAnuladoEn(),
-                m.getAnuladoPor() != null ? m.getAnuladoPor().getId() : null,
-                m.getMotivoAnulacion()
+                movimiento.getId(),
+                movimiento.getPuntoDeVenta().getId(),
+                movimiento.getCategoria(),
+                movimiento.getUsuario().getId(),
+                movimiento.getCierreCaja() != null ? movimiento.getCierreCaja().getId() : null,
+                movimiento.getMonto(),
+                movimiento.getMedioPago(),
+                movimiento.getSentido(),
+                movimiento.getFechaHora(),
+                movimiento.getComentarios(),
+                movimiento.getEstadoMovimientoCaja(),
+                movimiento.getAnuladoEn(),
+                movimiento.getAnuladoPor() != null ? movimiento.getAnuladoPor().getId() : null,
+                movimiento.getMotivoAnulacion()
         );
     }
+
+
+
 
 
 }
