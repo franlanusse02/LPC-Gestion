@@ -22,6 +22,7 @@ import java.util.List;
 public class CierreCajaController {
     private final CierreCajaService cierreCajaService;
 
+    // ALL
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CierreCajaResponse> createCierreCaja(
@@ -32,15 +33,20 @@ public class CierreCajaController {
             return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
+    // ADMIN || CONTABILIDAD
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
     public ResponseEntity<List<CierreCajaResponse>> getAllCierres(){
         List<CierreCajaResponse> cierres = cierreCajaService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(cierres);
     }
+    // ALL/ENCARGADO
+    // GET MAPPING getCierresByUsuario/getCierresByMe
 
+
+    //ADMIN || CONTABILIDAD
     @PostMapping("/{cierreId}/anular")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
     public ResponseEntity<CierreCajaResponse> anularCierreCaja(
             Authentication authentication,
             @PathVariable @Positive Long cierreId,
@@ -48,9 +54,9 @@ public class CierreCajaController {
             ){
         return ResponseEntity.ok(cierreCajaService.anularCierre(cierreId, authentication, request));
     }
-
+    //ADMIN || CONTABILIDAD
     @GetMapping("/anulacion/{cierreId}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
     public ResponseEntity<AnulacionCierreResponse> getAnulacionCierre(
             @PathVariable @Positive Long cierreId
     ){

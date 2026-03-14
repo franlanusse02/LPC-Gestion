@@ -1,8 +1,8 @@
 package com.lpc.gestioncomedores.dtos.cierreCaja;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record AnularCierreCajaRequest (
-        @NotNull String motivo
+        @NotBlank(message = "Motivo no puede estar vacio.") String motivo
 ){
 }

@@ -4,11 +4,14 @@ import com.lpc.gestioncomedores.dtos.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
@@ -66,6 +69,26 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler({
+            ForbiddenException.class,
+            AuthorizationDeniedException.class,
+            AccessDeniedException.class
+    })
+    public ResponseEntity<ErrorResponse> handleForbidden(
+            Exception ex,
+            HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Forbidden",
+                "No tiene permisos para acceder a este recurso.",
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(BadRequestException.class)

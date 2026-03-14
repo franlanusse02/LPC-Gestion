@@ -3,6 +3,7 @@ package com.lpc.gestioncomedores.dtos.cierreCaja;
 import com.lpc.gestioncomedores.models.CierreCaja;
 import com.lpc.gestioncomedores.models.Movimiento;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -13,6 +14,7 @@ public record CierreCajaResponse(
         Long puntoDeVentaId,
         LocalDate fechaOperacion,
         Long creadoPorId,
+        BigDecimal montoTotal,
         Long totalPlatosVendidos,
         Instant createdAt,
         String comentarios,
@@ -27,6 +29,7 @@ public record CierreCajaResponse(
                 cierreCaja.getPuntoDeVenta() != null ? cierreCaja.getPuntoDeVenta().getId() : null,
                 cierreCaja.getFechaOperacion(),
                 cierreCaja.getCreadoPor() != null ? cierreCaja.getCreadoPor().getCuil() : null,
+                cierreCaja.calcularMontoTotal(),
                 cierreCaja.getTotalPlatosVendidos(),
                 cierreCaja.getCreatedAt(),
                 cierreCaja.getComentarios(),

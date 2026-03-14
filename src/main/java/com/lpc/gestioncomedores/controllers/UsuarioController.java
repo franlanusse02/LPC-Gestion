@@ -22,17 +22,20 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
+    // ADMIN
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(usuarioService.registrar(request));
     }
 
+    // UNAUTH
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(usuarioService.login(request));
     }
 
+    // ALL
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UsuarioResponse> getMe(Authentication authentication) {
@@ -40,6 +43,7 @@ public class UsuarioController {
         return ResponseEntity.ok(UsuarioResponse.from(usuarioService.buscarPorCuil(cuil)));
     }
 
+    // ADMIN
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UsuarioResponse>> listarTodos() {
@@ -49,12 +53,14 @@ public class UsuarioController {
                         .toList());
     }
 
+    // ADMIN
     @GetMapping("/{cuil}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioResponse> getByCuil(@PathVariable Long cuil) {
         return ResponseEntity.ok(UsuarioResponse.from(usuarioService.buscarPorCuil(cuil)));
     }
 
+    // ADMIN
     @DeleteMapping("/{cuil}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable Long cuil) {

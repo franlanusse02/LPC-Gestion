@@ -20,18 +20,21 @@ public class PuntoDeVentaController {
 
     private final PuntoDeVentaService service;
 
+
+    // ADMIN
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PuntoDeVentaResponse> create(@Valid @RequestBody CreatePuntoDeVentaRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
     }
 
+    // ALL
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<PuntoDeVentaResponse>> getPuntosDeVenta() {
         return ResponseEntity.ok(service.getPuntosDeVenta());
     }
-
+    // ALL
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PuntoDeVentaResponse> getPuntoDeVentaById(@PathVariable @Positive Long id) {

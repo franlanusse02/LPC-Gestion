@@ -23,6 +23,7 @@ import java.util.List;
 public class MovimientoController{
     private final MovimientoService movimientoService;
 
+    // ALL
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MovimientoResponse> createMovimiento(
@@ -33,15 +34,20 @@ public class MovimientoController{
         return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
+
+    // ADMIN || CONTABILIDAD
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
     public ResponseEntity<List<MovimientoResponse>> getAllMovimientos(){
         List<MovimientoResponse> movimientos = movimientoService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(movimientos);
     }
+    // ADMIN || CONTABILIDAD / ENCARGADO
+    // GETMAPPING getCierresByUsuario/getCierresByMe
 
+    // ADMIN || CONTABILIDAD
     @PostMapping("/{movimientoId}/anular")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
     public ResponseEntity<MovimientoResponse> anularMovimiento(
             Authentication authentication,
             @PathVariable @Positive Long movimientoId,
@@ -50,8 +56,9 @@ public class MovimientoController{
         return ResponseEntity.ok(movimientoService.anularMovimiento(request, authentication, movimientoId));
     }
 
+    // ADMIN || CONTABILIDAD
     @GetMapping("/anulacion/{movimientoId}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
     public ResponseEntity<AnulacionMovimientoResponse> getAnulacionByMovimientoId(
             @PathVariable @Positive Long movimientoId
     ){

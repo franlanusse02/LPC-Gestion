@@ -22,20 +22,24 @@ public class ComedorController {
 
     private final ComedorService service;
 
+
+    //ADMIN
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ComedorResponse> crearComedor(
             Authentication authentication,
             @Valid @RequestBody CreateComedorRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
     }
 
+    //ALL
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ComedorResponse>> getComedores() {
         return ResponseEntity.ok(service.getComedores());
     }
 
+    //ALL
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ComedorResponse> getComedorById(@PathVariable @Positive Long id) {

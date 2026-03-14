@@ -57,23 +57,7 @@ public class CierreCaja {
     }
 
     // METHODS
-    public void actualizarTotalPlatosVendidos(Long totalPlatosVendidos) {
-        if (totalPlatosVendidos != null && totalPlatosVendidos < 0) {
-            throw new BadRequestException("Total de platos vendidos no puede ser menor a 0");
-        }
 
-        this.totalPlatosVendidos = totalPlatosVendidos;
-    }
-
-    public void agregarMovimiento(Movimiento movimiento) {
-        if (this.movimientos.stream()
-                .anyMatch(m -> movimiento.getMedioPago() == m.getMedioPago())) {
-            throw new IllegalStateException("Cierre ya posee una linea activa con ese medio de pago.");
-        }
-
-        movimiento.setCierreCaja(this);
-        this.movimientos.add(movimiento);
-    }
 
     public BigDecimal calcularMontoTotal() {
         return this.movimientos.stream()
