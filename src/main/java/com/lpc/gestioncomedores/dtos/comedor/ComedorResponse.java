@@ -7,7 +7,7 @@ import java.util.List;
 
 public record ComedorResponse(
         Long id,
-        String name,
+        String nombre,
         List<PuntoDeVentaResponse> puntosDeVenta) {
     public static ComedorResponse from(Comedor c) {
         return new ComedorResponse(
