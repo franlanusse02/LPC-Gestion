@@ -4,6 +4,7 @@ import com.lpc.gestioncomedores.dtos.cierreCaja.AnulacionCierreResponse;
 import com.lpc.gestioncomedores.dtos.cierreCaja.AnularCierreCajaRequest;
 import com.lpc.gestioncomedores.dtos.cierreCaja.CierreCajaResponse;
 import com.lpc.gestioncomedores.dtos.cierreCaja.CreateCierreCajaRequest;
+import com.lpc.gestioncomedores.exceptions.AlreadyRegisteredException;
 import com.lpc.gestioncomedores.exceptions.NotFoundException;
 import com.lpc.gestioncomedores.models.CierreCaja;
 import com.lpc.gestioncomedores.models.PuntoDeVenta;
@@ -31,6 +32,8 @@ public class CierreCajaService {
         Optional<PuntoDeVenta> puntoDeVentaOpt = puntoDeVentaRepository.findById(req.puntoVentaId());
         if(puntoDeVentaOpt.isEmpty()){
             throw new NotFoundException("Punto de venta no encontrado");
+        } else if (cierreCajaRepository.existsByFechaOperacion(req.fechaOperacion())) {
+            throw new AlreadyRegisteredException("Ya existe un cierre para esta fecha.");
         }
         Usuario usuario = usuarioRepository.getReferenceById(Long.parseLong(authentication.getName()));
         CierreCaja cierreCaja = new CierreCaja(
