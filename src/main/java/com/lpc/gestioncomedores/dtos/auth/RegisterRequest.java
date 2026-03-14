@@ -9,7 +9,7 @@ public record RegisterRequest(
 
         @NotNull(message = "El CUIL es obligatorio") @Positive Long cuil,
 
-        @NotNull(message = "El nombre es obligatorio") String name,
+        @NotNull(message = "El nombre es obligatorio") String nombre,
 
         @NotNull(message = "El rol es obligatorio") UsuarioRol rol,
 

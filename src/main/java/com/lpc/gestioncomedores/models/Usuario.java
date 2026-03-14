@@ -17,7 +17,7 @@ public class Usuario {
     private Long cuil;
 
     @Column(nullable = false)
-    private String name;
+    private String nombre;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

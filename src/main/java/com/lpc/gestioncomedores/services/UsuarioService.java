@@ -34,13 +34,13 @@ public class UsuarioService {
 
         Usuario usuario = new Usuario(
                 request.cuil(),
-                request.name(),
+                request.nombre(),
                 request.rol(),
                 passwordEncoder.encode(request.password()));
 
         usuarioRepository.save(usuario);
-        String token = jwtTokenProvider.generateToken(usuario.getCuil(), usuario.getName(), usuario.getRol().name());
-        return new LoginResponse(token, usuario.getCuil(), usuario.getName(), usuario.getRol().name());
+        String token = jwtTokenProvider.generateToken(usuario.getCuil(), usuario.getNombre(), usuario.getRol().name());
+        return new LoginResponse(token, usuario.getCuil(), usuario.getNombre(), usuario.getRol().name());
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -50,8 +50,8 @@ public class UsuarioService {
                         request.getPassword()));
 
         Usuario usuario = buscarPorCuil(request.getCuil());
-        String token = jwtTokenProvider.generateToken(usuario.getCuil(), usuario.getName(), usuario.getRol().name());
-        return new LoginResponse(token, usuario.getCuil(), usuario.getName(), usuario.getRol().name());
+        String token = jwtTokenProvider.generateToken(usuario.getCuil(), usuario.getNombre(), usuario.getRol().name());
+        return new LoginResponse(token, usuario.getCuil(), usuario.getNombre(), usuario.getRol().name());
     }
 
     public Usuario buscarPorCuil(Long cuil) {
