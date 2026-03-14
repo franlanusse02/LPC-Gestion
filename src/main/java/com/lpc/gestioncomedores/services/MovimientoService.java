@@ -5,12 +5,10 @@ import com.lpc.gestioncomedores.dtos.movimiento.AnularMovimientoRequest;
 import com.lpc.gestioncomedores.dtos.movimiento.CreateMovimientoRequest;
 import com.lpc.gestioncomedores.dtos.movimiento.MovimientoResponse;
 import com.lpc.gestioncomedores.exceptions.AlreadyRegisteredException;
-import com.lpc.gestioncomedores.exceptions.BadRequestException;
 import com.lpc.gestioncomedores.exceptions.NotFoundException;
 import com.lpc.gestioncomedores.models.CierreCaja;
 import com.lpc.gestioncomedores.models.Movimiento;
 import com.lpc.gestioncomedores.models.Usuario;
-import com.lpc.gestioncomedores.models.utils.Anulacion;
 import com.lpc.gestioncomedores.models.utils.AnulacionMovimiento;
 import com.lpc.gestioncomedores.repositories.CierreCajaRepository;
 import com.lpc.gestioncomedores.repositories.MovimientoRepository;
@@ -34,12 +32,8 @@ public class MovimientoService{
         if(cierreCajaOpt.isEmpty()){
             throw new NotFoundException("Cierre no encontrado.");
         }
-        List<Movimiento> movimientos = cierreCajaOpt.get().getMovimientos();
-        if (
-                movimientos.stream()
-                        .anyMatch(m -> m.getMedioPago() == req.medioPago())
-        ){
-            throw new AlreadyRegisteredException("Ya existe un movimiento con ese medio de pago");
+        if (movimientoRepository.existsByCierreCaja_IdAndMedioPago(req.cierreCajaId(), req.medioPago())) {
+            throw new AlreadyRegisteredException("Ya existe una linea con ese medio de pago para ese cierre.");
         }
         Movimiento movimiento = new Movimiento(req.monto(), req.medioPago(), cierreCajaOpt.get(), req.comentarios());
         movimiento = this.movimientoRepository.save(movimiento);
