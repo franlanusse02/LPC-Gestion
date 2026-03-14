@@ -1,8 +1,11 @@
 package com.lpc.gestioncomedores.models;
 
+import com.lpc.gestioncomedores.exceptions.BadRequestException;
 import com.lpc.gestioncomedores.models.enums.MedioPago;
 import com.lpc.gestioncomedores.models.utils.Anulacion;
 
+import com.lpc.gestioncomedores.models.utils.AnulacionCierre;
+import com.lpc.gestioncomedores.models.utils.AnulacionMovimiento;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
@@ -41,7 +44,7 @@ public class Movimiento {
     private CierreCaja cierreCaja;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Anulacion anulacion = null;
+    private AnulacionMovimiento anulacion = null;
 
     private String comentarios = "";
 
@@ -50,5 +53,17 @@ public class Movimiento {
         this.medioPago = medioPago;
         this.cierreCaja = cierreCaja;
         this.comentarios = comentarios;
+    }
+
+    public void anularMovimiento(String motivoAnulacion, Usuario anuladoPor) {
+        if (motivoAnulacion == null || motivoAnulacion.isBlank()) {
+            throw new BadRequestException("Motivo no puede estar vacio");
+        }
+        AnulacionMovimiento anulacion = new AnulacionMovimiento();
+        anulacion.setFechaAnulacion(Instant.now());
+        anulacion.setMotivo(motivoAnulacion);
+        anulacion.setAnuladoPor(anuladoPor);
+
+        this.anulacion = anulacion;
     }
 }

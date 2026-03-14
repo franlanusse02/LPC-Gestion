@@ -8,6 +8,8 @@ import com.lpc.gestioncomedores.models.Usuario;
 import com.lpc.gestioncomedores.models.enums.EstadoCierreCaja;
 import com.lpc.gestioncomedores.models.utils.Anulacion;
 
+import com.lpc.gestioncomedores.models.utils.AnulacionCierre;
+import com.lpc.gestioncomedores.models.utils.AnulacionMovimiento;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -53,7 +55,7 @@ public class CierreCaja {
     private String comentarios = "";
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Anulacion anulacion;
+    private AnulacionCierre anulacion;
 
     @OneToMany(mappedBy = "cierreCaja", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Movimiento> movimientos = new ArrayList<>();
@@ -112,4 +114,27 @@ public class CierreCaja {
         }
         this.estado = EstadoCierreCaja.PROCESADO;
     }
+
+    public void anularCierre(Usuario anuladoPor, String motivoAnulacion) {
+        if (motivoAnulacion == null || motivoAnulacion.isBlank()) {
+            throw new BadRequestException("Motivo no puede estar vacio");
+        }
+
+        for (Movimiento movimiento : this.movimientos) {
+            if (movimiento.getAnulacion() == null) {
+                movimiento.anularMovimiento(motivoAnulacion, anuladoPor);
+            }
+        }
+        AnulacionCierre anulacion = new AnulacionCierre();
+        anulacion.setFechaAnulacion(Instant.now());
+        anulacion.setMotivo(motivoAnulacion);
+        anulacion.setAnuladoPor(anuladoPor);
+
+        this.anulacion = anulacion;
+        this.estado = EstadoCierreCaja.ANULADO;
+
+    }
+
+
 }
+
