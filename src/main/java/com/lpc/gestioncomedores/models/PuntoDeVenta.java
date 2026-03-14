@@ -1,4 +1,4 @@
-package com.lpc.gestioncomedores.models.comedores;
+package com.lpc.gestioncomedores.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -15,6 +15,3 @@ public class PuntoDeVenta {
     @JoinColumn(name = "comedor_id", nullable = false)
     private Comedor comedor;
 }
-
-
-

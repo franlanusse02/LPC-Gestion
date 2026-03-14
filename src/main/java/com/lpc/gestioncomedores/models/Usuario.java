@@ -1,11 +1,10 @@
-package com.lpc.gestioncomedores.models.personas;
+package com.lpc.gestioncomedores.models;
 
 import com.lpc.gestioncomedores.models.enums.UsuarioRol;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 
 @Entity
 @Getter
@@ -14,13 +13,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "usuarios")
 public class Usuario {
 
-    //Crear columna Id y mapear a
     @Id
-    private Long id;
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId
-    @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "fk_usuario_empleado"))
-    private Empleado empleado;
+    private Long cuil;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -28,6 +22,4 @@ public class Usuario {
 
     @Column(nullable = false)
     private String passhash;
-
-
 }

@@ -1,6 +1,6 @@
 package com.lpc.gestioncomedores.exceptions;
 
-import com.lpc.gestioncomedores.exceptions.childs.*;
+import com.lpc.gestioncomedores.exceptions.*;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

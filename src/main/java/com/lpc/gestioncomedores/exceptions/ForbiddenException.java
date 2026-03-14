@@ -1,4 +1,4 @@
-package com.lpc.gestioncomedores.exceptions.childs;
+package com.lpc.gestioncomedores.exceptions;
 
 public class ForbiddenException extends RuntimeException {
     public ForbiddenException(String message) {

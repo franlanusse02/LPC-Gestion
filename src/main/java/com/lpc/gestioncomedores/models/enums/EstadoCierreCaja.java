@@ -1,7 +1,7 @@
 package com.lpc.gestioncomedores.models.enums;
 
 public enum EstadoCierreCaja {
-    BORRADOR,
-    CERRADO,
+    PENDIENTE,
+    PROCESADO,
     ANULADO
 }

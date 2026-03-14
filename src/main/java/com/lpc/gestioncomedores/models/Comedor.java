@@ -1,5 +1,4 @@
-package com.lpc.gestioncomedores.models.comedores;
-
+package com.lpc.gestioncomedores.models;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "comedores")
 public class Comedor {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)

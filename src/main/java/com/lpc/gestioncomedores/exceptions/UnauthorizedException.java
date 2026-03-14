@@ -1,4 +1,4 @@
-package com.lpc.gestioncomedores.exceptions.childs;
+package com.lpc.gestioncomedores.exceptions;
 
 public class UnauthorizedException extends RuntimeException {
     public UnauthorizedException(String message) {
