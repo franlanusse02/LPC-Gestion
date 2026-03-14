@@ -1,9 +1,14 @@
 package com.lpc.gestioncomedores.services;
 
+import com.lpc.gestioncomedores.dtos.auth.AuthRequest;
+import com.lpc.gestioncomedores.dtos.auth.AuthResponse;
 import com.lpc.gestioncomedores.dtos.auth.RegisterRequest;
 import com.lpc.gestioncomedores.models.Usuario;
 import com.lpc.gestioncomedores.repositories.UsuarioRepository;
+import com.lpc.gestioncomedores.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +20,10 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public Usuario registrar(RegisterRequest request) {
+    public AuthResponse registrar(RegisterRequest request) {
         if (usuarioRepository.existsByCuil(request.cuil())) {
             throw new RuntimeException("Ya existe un usuario con el CUIL " + request.cuil());
         }
@@ -26,7 +33,20 @@ public class UsuarioService {
                 request.rol(),
                 passwordEncoder.encode(request.password()));
 
-        return usuarioRepository.save(usuario);
+        usuarioRepository.save(usuario);
+        String token = jwtTokenProvider.generateToken(usuario.getCuil(), usuario.getRol().name());
+        return new AuthResponse(token, usuario.getCuil(), usuario.getRol().name());
+    }
+
+    public AuthResponse login(AuthRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        String.valueOf(request.getCuil()),
+                        request.getPassword()));
+
+        Usuario usuario = buscarPorCuil(request.getCuil());
+        String token = jwtTokenProvider.generateToken(usuario.getCuil(), usuario.getRol().name());
+        return new AuthResponse(token, usuario.getCuil(), usuario.getRol().name());
     }
 
     public Usuario buscarPorCuil(Long cuil) {
