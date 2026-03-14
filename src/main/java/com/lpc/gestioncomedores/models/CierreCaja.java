@@ -42,15 +42,15 @@ public class CierreCaja {
     private Usuario creadoPor;
 
     @Column(name = "total_platos_vendidos")
-    private Integer totalPlatosVendidos;
+    private Long totalPlatosVendidos;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
-    private EstadoCierreCaja estado;
+    private EstadoCierreCaja estado = EstadoCierreCaja.PENDIENTE;
 
     @Column(nullable = false)
-    private Instant createdAt;
-    private String comentarios;
+    private Instant createdAt = Instant.now();
+    private String comentarios = "";
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Anulacion anulacion;
@@ -58,8 +58,17 @@ public class CierreCaja {
     @OneToMany(mappedBy = "cierreCaja", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Movimiento> movimientos = new ArrayList<>();
 
+    // Main Constructor
+    public CierreCaja(PuntoDeVenta puntoDeVenta, LocalDate fechaOperacion, Usuario creadoPor, Long totalPlatosVendidos, String comentarios) {
+        this.puntoDeVenta = puntoDeVenta;
+        this.fechaOperacion = fechaOperacion;
+        this.creadoPor = creadoPor;
+        this.totalPlatosVendidos = totalPlatosVendidos;
+        this.comentarios = comentarios;
+    }
+
     // METHODS
-    public void actualizarTotalPlatosVendidos(Integer totalPlatosVendidos) {
+    public void actualizarTotalPlatosVendidos(Long totalPlatosVendidos) {
         if (this.estado != EstadoCierreCaja.PENDIENTE) {
             throw new IllegalStateException("No se pueden modificar cierres que no esten en estado PENDIENTE");
         } else if (totalPlatosVendidos != null && totalPlatosVendidos < 0) {
