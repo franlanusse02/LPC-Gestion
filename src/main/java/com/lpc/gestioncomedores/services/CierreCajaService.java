@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +33,10 @@ public class CierreCajaService {
         );
         cierreCaja = cierreCajaRepository.save(cierreCaja);
         return new CierreCajaResponse(cierreCaja);
+    }
+
+    public List<CierreCajaResponse> getAll(){
+        List<CierreCaja> cierreCajas = this.cierreCajaRepository.findAll();
+        return cierreCajas.stream().map(CierreCajaResponse::new).toList();
     }
 }

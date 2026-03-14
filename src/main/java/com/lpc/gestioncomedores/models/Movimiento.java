@@ -4,10 +4,12 @@ import com.lpc.gestioncomedores.models.enums.MedioPago;
 import com.lpc.gestioncomedores.models.utils.Anulacion;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -32,14 +34,21 @@ public class Movimiento {
     private MedioPago medioPago;
 
     @Column(nullable = false)
-    private Instant fechaHora;
+    private Instant fechaHora = Instant.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cierre_caja_id", nullable = false)
     private CierreCaja cierreCaja;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Anulacion anulacion;
+    private Anulacion anulacion = null;
 
-    private String comentarios;
+    private String comentarios = "";
+
+    public Movimiento(BigDecimal monto, MedioPago medioPago, CierreCaja cierreCaja, String comentarios){
+        this.monto = monto;
+        this.medioPago = medioPago;
+        this.cierreCaja = cierreCaja;
+        this.comentarios = comentarios;
+    }
 }
