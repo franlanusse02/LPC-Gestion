@@ -3,6 +3,6 @@ package com.lpc.gestioncomedores.models.enums;
 public enum UsuarioRol {
     ENCARGADO,
     CONTABILIDAD,
-    ADMINISTRACION,
+    ADMIN,
     DEVELOPER
 }
