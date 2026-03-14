@@ -14,4 +14,7 @@ public class PuntoDeVenta {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "comedor_id", nullable = false)
     private Comedor comedor;
+
+    @Column(nullable = false)
+    private String nombre;
 }
