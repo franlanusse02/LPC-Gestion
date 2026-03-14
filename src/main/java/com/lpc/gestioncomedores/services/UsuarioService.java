@@ -3,6 +3,7 @@ package com.lpc.gestioncomedores.services;
 import com.lpc.gestioncomedores.dtos.auth.AuthRequest;
 import com.lpc.gestioncomedores.dtos.auth.AuthResponse;
 import com.lpc.gestioncomedores.dtos.auth.RegisterRequest;
+import com.lpc.gestioncomedores.exceptions.AlreadyRegisteredException;
 import com.lpc.gestioncomedores.models.Usuario;
 import com.lpc.gestioncomedores.repositories.UsuarioRepository;
 import com.lpc.gestioncomedores.security.JwtTokenProvider;
@@ -25,7 +26,7 @@ public class UsuarioService {
 
     public AuthResponse registrar(RegisterRequest request) {
         if (usuarioRepository.existsByCuil(request.cuil())) {
-            throw new RuntimeException("Ya existe un usuario con el CUIL " + request.cuil());
+            throw new AlreadyRegisteredException("Ya existe un usuario con el CUIL " + request.cuil());
         }
 
         Usuario usuario = new Usuario(

@@ -23,9 +23,7 @@ public class ComedorService {
             throw new BadRequestException("CreateComedorRequest no puede ser null.");
         }
 
-        // Records expose fields via accessor methods (req.name()), not public fields
-        // (req.name)
-        Comedor comedor = new Comedor(null, req.name(), new ArrayList<>());
+        Comedor comedor = new Comedor(null, req.nombre(), new ArrayList<>());
         comedorRepo.save(comedor);
         return ComedorResponse.from(comedor);
     }
