@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +28,11 @@ public class MovimientoService{
     private final UsuarioRepository usuarioRepository;
 
     public MovimientoResponse create(CreateMovimientoRequest req){
-        CierreCaja cierreCaja = cierreCajaRepository.getReferenceById(req.cierreCajaId());
-        Movimiento movimiento = new Movimiento(req.monto(), req.medioPago(), cierreCaja, req.comentarios());
+        Optional<CierreCaja> cierreCajaOpt = cierreCajaRepository.findById(req.cierreCajaId());
+        if(cierreCajaOpt.isEmpty()){
+            throw new NotFoundException("Cierre no encontrado.");
+        }
+        Movimiento movimiento = new Movimiento(req.monto(), req.medioPago(), cierreCajaOpt.get(), req.comentarios());
         movimiento = this.movimientoRepository.save(movimiento);
         return new MovimientoResponse(movimiento);
     }

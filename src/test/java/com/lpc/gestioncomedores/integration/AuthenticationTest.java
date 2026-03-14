@@ -1,7 +1,7 @@
 package com.lpc.gestioncomedores.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lpc.gestioncomedores.dtos.auth.AuthResponse;
+import com.lpc.gestioncomedores.dtos.auth.LoginResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -60,7 +60,7 @@ public class AuthenticationTest {
                         .getContentAsString();
 
         // Deserialize JSON to DTO
-        AuthResponse loginResponse = objectMapper.readValue(responseBody, AuthResponse.class);
+        LoginResponse loginResponse = objectMapper.readValue(responseBody, LoginResponse.class);
         String token = loginResponse.token();
 
         // 3. Test an authenticated endpoint

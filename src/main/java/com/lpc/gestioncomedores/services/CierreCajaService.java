@@ -4,7 +4,6 @@ import com.lpc.gestioncomedores.dtos.cierreCaja.AnulacionCierreResponse;
 import com.lpc.gestioncomedores.dtos.cierreCaja.AnularCierreCajaRequest;
 import com.lpc.gestioncomedores.dtos.cierreCaja.CierreCajaResponse;
 import com.lpc.gestioncomedores.dtos.cierreCaja.CreateCierreCajaRequest;
-import com.lpc.gestioncomedores.dtos.movimiento.AnulacionMovimientoResponse;
 import com.lpc.gestioncomedores.exceptions.NotFoundException;
 import com.lpc.gestioncomedores.models.CierreCaja;
 import com.lpc.gestioncomedores.models.PuntoDeVenta;
@@ -19,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +28,13 @@ public class CierreCajaService {
     private final UsuarioRepository usuarioRepository;
 
     public CierreCajaResponse create(CreateCierreCajaRequest req, Authentication authentication){
-        PuntoDeVenta puntoDeVenta = puntoDeVentaRepository.getReferenceById(req.puntoVentaId());
+        Optional<PuntoDeVenta> puntoDeVentaOpt = puntoDeVentaRepository.findById(req.puntoVentaId());
+        if(puntoDeVentaOpt.isEmpty()){
+            throw new NotFoundException("Punto de venta no encontrado");
+        }
         Usuario usuario = usuarioRepository.getReferenceById(Long.parseLong(authentication.getName()));
         CierreCaja cierreCaja = new CierreCaja(
-                puntoDeVenta,
+                puntoDeVentaOpt.get(),
                 req.fechaOperacion(),
                 usuario,
                 req.totalPlatosVendidos(),

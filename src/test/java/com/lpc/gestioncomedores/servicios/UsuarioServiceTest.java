@@ -1,7 +1,7 @@
 package com.lpc.gestioncomedores.servicios;
 
-import com.lpc.gestioncomedores.dtos.auth.AuthRequest;
-import com.lpc.gestioncomedores.dtos.auth.AuthResponse;
+import com.lpc.gestioncomedores.dtos.auth.LoginRequest;
+import com.lpc.gestioncomedores.dtos.auth.LoginResponse;
 import com.lpc.gestioncomedores.dtos.auth.RegisterRequest;
 import com.lpc.gestioncomedores.models.Usuario;
 import com.lpc.gestioncomedores.models.enums.UsuarioRol;
@@ -63,7 +63,7 @@ class UsuarioServiceTest {
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
         when(jwtTokenProvider.generateToken(20304050607L, "ADMIN")).thenReturn("jwt-token");
 
-        AuthResponse response = usuarioService.registrar(request);
+        LoginResponse response = usuarioService.registrar(request);
 
         assertThat(response.token()).isEqualTo("jwt-token");
         assertThat(response.cuil()).isEqualTo(20304050607L);
@@ -87,7 +87,7 @@ class UsuarioServiceTest {
 
     @Test
     void login_withValidCredentials_shouldReturnAuthResponse() {
-        AuthRequest request = new AuthRequest();
+        LoginRequest request = new LoginRequest();
         // Use reflection or a setter — adjust if AuthRequest uses records
         org.springframework.test.util.ReflectionTestUtils.setField(request, "cuil", 20304050607L);
         org.springframework.test.util.ReflectionTestUtils.setField(request, "password", "password123");
@@ -97,7 +97,7 @@ class UsuarioServiceTest {
         when(usuarioRepository.findByCuil(20304050607L)).thenReturn(Optional.of(usuario));
         when(jwtTokenProvider.generateToken(20304050607L, "ADMIN")).thenReturn("jwt-token");
 
-        AuthResponse response = usuarioService.login(request);
+        LoginResponse response = usuarioService.login(request);
 
         assertThat(response.token()).isEqualTo("jwt-token");
         assertThat(response.cuil()).isEqualTo(20304050607L);
@@ -105,7 +105,7 @@ class UsuarioServiceTest {
 
     @Test
     void login_withInvalidCredentials_shouldThrowException() {
-        AuthRequest request = new AuthRequest();
+        LoginRequest request = new LoginRequest();
         org.springframework.test.util.ReflectionTestUtils.setField(request, "cuil", 20304050607L);
         org.springframework.test.util.ReflectionTestUtils.setField(request, "password", "wrong");
 

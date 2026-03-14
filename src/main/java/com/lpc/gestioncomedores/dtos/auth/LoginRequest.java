@@ -2,10 +2,12 @@ package com.lpc.gestioncomedores.dtos.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
 // ── Request: login ──────────────────────────────────────────────────────────
 
-public class AuthRequest {
+@Getter
+public class LoginRequest {
 
     @NotNull(message = "El CUIL es obligatorio")
     private Long cuil;
@@ -13,11 +15,4 @@ public class AuthRequest {
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 
-    public Long getCuil() {
-        return cuil;
-    }
-
-    public String getPassword() {
-        return password;
-    }
 }

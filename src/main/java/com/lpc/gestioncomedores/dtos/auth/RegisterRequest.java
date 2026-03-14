@@ -8,6 +8,8 @@ public record RegisterRequest(
 
         @NotNull(message = "El CUIL es obligatorio") Long cuil,
 
+        @NotNull(message = "El nombre es obligatorio") String name,
+
         @NotNull(message = "El rol es obligatorio") UsuarioRol rol,
 
         @NotBlank(message = "La contraseña es obligatoria") String password) {

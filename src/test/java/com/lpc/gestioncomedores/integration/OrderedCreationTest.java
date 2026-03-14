@@ -1,6 +1,6 @@
 package com.lpc.gestioncomedores.integration;
 
-import com.lpc.gestioncomedores.dtos.auth.AuthResponse;
+import com.lpc.gestioncomedores.dtos.auth.LoginResponse;
 import com.lpc.gestioncomedores.dtos.auth.RegisterRequest;
 import com.lpc.gestioncomedores.models.Comedor;
 import com.lpc.gestioncomedores.models.PuntoDeVenta;
@@ -58,7 +58,7 @@ public class OrderedCreationTest {
 
         // Create user directly via service
         RegisterRequest req = new RegisterRequest(Long.valueOf("20447881315"), UsuarioRol.ADMIN, "password123");
-        AuthResponse res = userService.registrar(req);
+        LoginResponse res = userService.registrar(req);
 
         // Generate JWT token directly
         token = res.token();

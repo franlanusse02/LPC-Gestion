@@ -16,10 +16,15 @@ public class Usuario {
     @Id
     private Long cuil;
 
+    @Column(nullable = false)
+    private String name;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UsuarioRol rol;
 
     @Column(nullable = false)
     private String passhash;
+
+
 }

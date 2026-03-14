@@ -1,15 +1,8 @@
 package com.lpc.gestioncomedores.models;
 
 import com.lpc.gestioncomedores.exceptions.BadRequestException;
-import com.lpc.gestioncomedores.exceptions.NotFoundException;
-import com.lpc.gestioncomedores.models.Comedor;
-import com.lpc.gestioncomedores.models.PuntoDeVenta;
-import com.lpc.gestioncomedores.models.Usuario;
-import com.lpc.gestioncomedores.models.enums.EstadoCierreCaja;
-import com.lpc.gestioncomedores.models.utils.Anulacion;
 
 import com.lpc.gestioncomedores.models.utils.AnulacionCierre;
-import com.lpc.gestioncomedores.models.utils.AnulacionMovimiento;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,9 +10,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -46,10 +37,6 @@ public class CierreCaja {
     @Column(name = "total_platos_vendidos")
     private Long totalPlatosVendidos;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado", nullable = false)
-    private EstadoCierreCaja estado = EstadoCierreCaja.PENDIENTE;
-
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
     private String comentarios = "";
@@ -71,27 +58,14 @@ public class CierreCaja {
 
     // METHODS
     public void actualizarTotalPlatosVendidos(Long totalPlatosVendidos) {
-        if (this.estado != EstadoCierreCaja.PENDIENTE) {
-            throw new IllegalStateException("No se pueden modificar cierres que no esten en estado PENDIENTE");
-        } else if (totalPlatosVendidos != null && totalPlatosVendidos < 0) {
+        if (totalPlatosVendidos != null && totalPlatosVendidos < 0) {
             throw new BadRequestException("Total de platos vendidos no puede ser menor a 0");
         }
 
         this.totalPlatosVendidos = totalPlatosVendidos;
     }
 
-    public void actualizarComentarios(String observaciones) {
-        if (this.estado != EstadoCierreCaja.PENDIENTE) {
-            throw new IllegalStateException("No se pueden modificar cierres que no esten en estado PENDIENTE");
-        }
-        this.comentarios = observaciones;
-    }
-
     public void agregarMovimiento(Movimiento movimiento) {
-        if (this.estado == EstadoCierreCaja.ANULADO || this.estado == EstadoCierreCaja.PROCESADO) {
-            throw new IllegalStateException("Solo se pueden modificar cierres en estado PENDIENTE");
-        }
-
         if (this.movimientos.stream()
                 .anyMatch(m -> movimiento.getMedioPago() == m.getMedioPago())) {
             throw new IllegalStateException("Cierre ya posee una linea activa con ese medio de pago.");
@@ -104,15 +78,8 @@ public class CierreCaja {
     public BigDecimal calcularMontoTotal() {
         return this.movimientos.stream()
                 .filter(m -> m.getAnulacion() == null)
-                .map(m -> m.getMonto())
+                .map(Movimiento::getMonto)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public void procesarCierre() {
-        if (this.estado != EstadoCierreCaja.PENDIENTE) {
-            throw new IllegalStateException("Solo se pueden finalizar cierres en estado pendiente.");
-        }
-        this.estado = EstadoCierreCaja.PROCESADO;
     }
 
     public void anularCierre(Usuario anuladoPor, String motivoAnulacion) {
@@ -131,8 +98,6 @@ public class CierreCaja {
         anulacion.setAnuladoPor(anuladoPor);
 
         this.anulacion = anulacion;
-        this.estado = EstadoCierreCaja.ANULADO;
-
     }
 
 

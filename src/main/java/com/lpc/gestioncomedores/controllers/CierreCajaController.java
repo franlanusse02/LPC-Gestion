@@ -39,7 +39,7 @@ public class CierreCajaController {
         return ResponseEntity.status(HttpStatus.OK).body(cierres);
     }
 
-    @PatchMapping("/{cierreId}")
+    @PostMapping("/{cierreId}/anular")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CierreCajaResponse> anularCierreCaja(
             Authentication authentication,

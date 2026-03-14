@@ -40,7 +40,7 @@ public class MovimientoController{
         return ResponseEntity.status(HttpStatus.OK).body(movimientos);
     }
 
-    @PatchMapping("/{movimientoId}")
+    @PostMapping("/{movimientoId}/anular")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MovimientoResponse> anularMovimiento(
             Authentication authentication,

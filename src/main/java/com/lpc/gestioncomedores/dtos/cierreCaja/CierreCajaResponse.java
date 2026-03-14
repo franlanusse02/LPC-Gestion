@@ -2,7 +2,6 @@ package com.lpc.gestioncomedores.dtos.cierreCaja;
 
 import com.lpc.gestioncomedores.models.CierreCaja;
 import com.lpc.gestioncomedores.models.Movimiento;
-import com.lpc.gestioncomedores.models.enums.EstadoCierreCaja;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,7 +14,6 @@ public record CierreCajaResponse(
         LocalDate fechaOperacion,
         Long creadoPorId,
         Long totalPlatosVendidos,
-        EstadoCierreCaja estado,
         Instant createdAt,
         String comentarios,
         Long anulacionId,
@@ -30,7 +28,6 @@ public record CierreCajaResponse(
                 cierreCaja.getFechaOperacion(),
                 cierreCaja.getCreadoPor() != null ? cierreCaja.getCreadoPor().getCuil() : null,
                 cierreCaja.getTotalPlatosVendidos(),
-                cierreCaja.getEstado(),
                 cierreCaja.getCreatedAt(),
                 cierreCaja.getComentarios(),
                 cierreCaja.getAnulacion() != null ? cierreCaja.getAnulacion().getId() : null,

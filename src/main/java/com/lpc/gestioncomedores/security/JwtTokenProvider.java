@@ -21,13 +21,14 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateToken(Long cuil, String rol) {
+    public String generateToken(Long cuil, String name, String rol) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtExpirationMs);
 
         return Jwts.builder()
                 .setSubject(String.valueOf(cuil))
                 .claim("rol", rol)
+                .claim("name", name)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
