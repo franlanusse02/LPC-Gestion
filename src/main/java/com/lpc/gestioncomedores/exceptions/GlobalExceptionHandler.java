@@ -134,7 +134,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(),
                 "Wrong Credentials",
-                ex.getMessage(),
+                "Credenciales Erróneas",
                 request.getRequestURI()
         );
 
