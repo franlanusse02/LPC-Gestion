@@ -1,9 +1,6 @@
 package com.lpc.gestioncomedores.services;
 
-import com.lpc.gestioncomedores.dtos.cierreCaja.AnulacionCierreResponse;
-import com.lpc.gestioncomedores.dtos.cierreCaja.AnularCierreCajaRequest;
-import com.lpc.gestioncomedores.dtos.cierreCaja.CierreCajaResponse;
-import com.lpc.gestioncomedores.dtos.cierreCaja.CreateCierreCajaRequest;
+import com.lpc.gestioncomedores.dtos.cierreCaja.*;
 import com.lpc.gestioncomedores.exceptions.AlreadyRegisteredException;
 import com.lpc.gestioncomedores.exceptions.BadRequestException;
 import com.lpc.gestioncomedores.exceptions.NotFoundException;
@@ -53,6 +50,11 @@ public class CierreCajaService {
     public List<CierreCajaResponse> getAll(){
         List<CierreCaja> cierreCajas = this.cierreCajaRepository.findAll();
         return cierreCajas.stream().map(CierreCajaResponse::new).toList();
+    }
+
+    public List<DetailedCierreCajaResponse> getAllDetailed(){
+        List<CierreCaja> cierreCajas = this.cierreCajaRepository.findAll();
+        return cierreCajas.stream().map(DetailedCierreCajaResponse::new).toList();
     }
 
     public CierreCajaResponse anularCierre(Long cierreId, Authentication authentication, AnularCierreCajaRequest request){

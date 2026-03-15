@@ -36,8 +36,15 @@ public class CierreCajaController {
     // ADMIN || CONTABILIDAD
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
-    public ResponseEntity<List<CierreCajaResponse>> getAllCierres(){
-        List<CierreCajaResponse> cierres = cierreCajaService.getAll();
+    public ResponseEntity<List<?>> getAllCierres(
+            @RequestParam(name = "detailed", required = false, defaultValue = "false") Boolean detailed
+    ){
+        List<?> cierres;
+        if(detailed) {
+            cierres = cierreCajaService.getAllDetailed();
+        }else {
+            cierres = cierreCajaService.getAll();
+        }
         return ResponseEntity.status(HttpStatus.OK).body(cierres);
     }
     // ADMIN || CONTABILIDAD
