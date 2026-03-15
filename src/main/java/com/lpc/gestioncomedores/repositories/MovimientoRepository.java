@@ -5,5 +5,5 @@ import com.lpc.gestioncomedores.models.enums.MedioPago;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MovimientoRepository extends JpaRepository<Movimiento, Long> {
-    boolean existsByCierreCaja_IdAndMedioPago(Long cierreCajaId, MedioPago medioPago);
+    boolean existsByCierreCaja_IdAndMedioPagoAndAnulacionIsNull(Long cierreCajaId, MedioPago medioPago);
 }
