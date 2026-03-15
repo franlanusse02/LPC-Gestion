@@ -1,6 +1,7 @@
 package com.lpc.gestioncomedores.dtos.cierreCaja;
 
-import com.lpc.gestioncomedores.dtos.comedor.ComedorResponse;
+import com.lpc.gestioncomedores.dtos.auth.UsuarioResponse;
+import com.lpc.gestioncomedores.dtos.comedor.ComedorCompressedResponse;
 import com.lpc.gestioncomedores.dtos.movimiento.MovimientoResponse;
 import com.lpc.gestioncomedores.dtos.ptoVenta.PuntoDeVentaResponse;
 import com.lpc.gestioncomedores.models.CierreCaja;
@@ -12,10 +13,10 @@ import java.util.List;
 
 public record DetailedCierreCajaResponse(
         Long id,
-        ComedorResponse comedor,
         PuntoDeVentaResponse puntoDeVenta,
+        ComedorCompressedResponse comedor,
         LocalDate fechaOperacion,
-        Long creadoPorId,
+        UsuarioResponse creadoPor,
         BigDecimal montoTotal,
         Long totalPlatosVendidos,
         Instant createdAt,
@@ -28,10 +29,10 @@ public record DetailedCierreCajaResponse(
     public DetailedCierreCajaResponse(CierreCaja cierreCaja) {
         this(
                 cierreCaja.getId(),
-                ComedorResponse.from(cierreCaja.getPuntoDeVenta().getComedor()),
                 PuntoDeVentaResponse.from(cierreCaja.getPuntoDeVenta()),
+                ComedorCompressedResponse.from(cierreCaja.getPuntoDeVenta().getComedor()),
                 cierreCaja.getFechaOperacion(),
-                cierreCaja.getCreadoPor() != null ? cierreCaja.getCreadoPor().getCuil() : null,
+                UsuarioResponse.from(cierreCaja.getCreadoPor()),
                 cierreCaja.calcularMontoTotal(),
                 cierreCaja.getTotalPlatosVendidos(),
                 cierreCaja.getCreatedAt(),
