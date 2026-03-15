@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDate;
 
 public interface CierreCajaRepository extends JpaRepository<CierreCaja, Long> {
-    boolean existsByFechaOperacionAndPuntoDeVenta(LocalDate fechaOperacion, PuntoDeVenta puntoDeVenta);
+    boolean existsByFechaOperacionAndPuntoDeVentaAndAnulacionIsNull(LocalDate fechaOperacion, PuntoDeVenta puntoDeVenta);
 }

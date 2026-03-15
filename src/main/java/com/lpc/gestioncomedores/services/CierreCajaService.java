@@ -34,7 +34,7 @@ public class CierreCajaService {
             throw new NotFoundException("Punto de venta no encontrado");
         }
         PuntoDeVenta puntoDeVenta = puntoDeVentaOpt.get();
-        if (cierreCajaRepository.existsByFechaOperacionAndPuntoDeVenta(req.fechaOperacion(), puntoDeVenta)) {
+        if (cierreCajaRepository.existsByFechaOperacionAndPuntoDeVentaAndAnulacionIsNull(req.fechaOperacion(), puntoDeVenta)) {
             throw new AlreadyRegisteredException("Ya existe un cierre para esta fecha.");
         } else if (req.fechaOperacion().isAfter(LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires")))) {
             throw new BadRequestException("Fecha de operacion no puede ser posterior a hoy.");
