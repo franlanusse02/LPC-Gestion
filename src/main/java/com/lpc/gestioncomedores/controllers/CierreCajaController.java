@@ -30,8 +30,8 @@ public class CierreCajaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CierreCajaResponse>> getAllCierres(Authentication authentication){
-        List<CierreCajaResponse> cierres= cierreCajaService.getAll(authentication);
+    public ResponseEntity<List<DetailedCierreCajaResponse>> getAllCierres(Authentication authentication){
+        List<DetailedCierreCajaResponse> cierres= cierreCajaService.getAll(authentication);
         return ResponseEntity.status(HttpStatus.OK).body(cierres);
     }
 
@@ -53,7 +53,7 @@ public class CierreCajaController {
 
     @GetMapping("/detailed/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
-    public ResponseEntity<?> getDetailedCierreById(@PathVariable Long id){
+    public ResponseEntity<DetailedCierreCajaResponse> getDetailedCierreById(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(
                 cierreCajaService.getDetailedById(id)
         );

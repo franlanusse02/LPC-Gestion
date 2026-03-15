@@ -51,10 +51,10 @@ public class CierreCajaService {
         return new CierreCajaResponse(cierreCaja);
     }
 
-    public List<CierreCajaResponse> getAll(Authentication authentication){
+    public List<DetailedCierreCajaResponse> getAll(Authentication authentication){
         List<CierreCaja> cierreCajas = this.cierreCajaRepository.findAll()
                 .stream().filter(c -> c.getCreadoPor().getCuil() == Long.parseLong(authentication.getName())).toList();
-        return cierreCajas.stream().map(CierreCajaResponse::new).toList();
+        return cierreCajas.stream().map(DetailedCierreCajaResponse::new).toList();
     }
 
     public List<DetailedCierreCajaResponse> getAllDetailed(){
