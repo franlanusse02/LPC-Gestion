@@ -33,6 +33,7 @@ public class AuthenticationTest {
             {
                   "cuil": 20304050607,
                   "rol": "ADMIN",
+                  "nombre": "Martin",
                   "password": "miPassword123"
             }
         """;

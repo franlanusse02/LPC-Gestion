@@ -21,14 +21,14 @@ class JwtTokenProviderTest {
 
     @Test
     void generateToken_shouldReturnNonNullToken() {
-        String token = jwtTokenProvider.generateToken(20304050607L, "ADMIN");
+        String token = jwtTokenProvider.generateToken(20304050607L, "Martin", "ADMIN");
         assertThat(token).isNotNull().isNotBlank();
     }
 
     @Test
     void getCuilFromToken_shouldReturnOriginalCuil() {
         Long cuil = 20304050607L;
-        String token = jwtTokenProvider.generateToken(cuil, "ADMIN");
+        String token = jwtTokenProvider.generateToken(cuil, "Martin", "ADMIN");
 
         Long extracted = jwtTokenProvider.getCuilFromToken(token);
 
@@ -37,7 +37,7 @@ class JwtTokenProviderTest {
 
     @Test
     void validateToken_withValidToken_shouldReturnTrue() {
-        String token = jwtTokenProvider.generateToken(20304050607L, "ADMIN");
+        String token = jwtTokenProvider.generateToken(20304050607L, "Martin", "ADMIN");
         assertThat(jwtTokenProvider.validateToken(token)).isTrue();
     }
 
@@ -55,7 +55,7 @@ class JwtTokenProviderTest {
                 "test-secret-key-that-is-long-enough-for-hs256-algorithm");
         ReflectionTestUtils.setField(expiredProvider, "jwtExpirationMs", -1000L); // already expired
 
-        String expiredToken = expiredProvider.generateToken(20304050607L, "ADMIN");
+        String expiredToken = expiredProvider.generateToken(20304050607L, "Martin", "ADMIN");
 
         assertThatThrownBy(() -> expiredProvider.validateToken(expiredToken))
                 .isInstanceOf(RuntimeException.class)

@@ -57,7 +57,7 @@ public class OrderedCreationTest {
 
 
         // Create user directly via service
-        RegisterRequest req = new RegisterRequest(Long.valueOf("20447881315"), UsuarioRol.ADMIN, "password123");
+        RegisterRequest req = new RegisterRequest(Long.valueOf("20447881315"), "Martin", UsuarioRol.ADMIN, "password123");
         LoginResponse res = userService.registrar(req);
 
         // Generate JWT token directly
