@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -101,5 +102,29 @@ public class CierreCajaService {
         AnulacionCierre anulacion = cierreCaja.getAnulacion();
 
         return new AnulacionCierreResponse(anulacion);
+    }
+
+    public CierreCajaResponse patchCierreCaja(PatchCierreCajaRequest request, Long cierreId) {
+        CierreCaja cierreCaja = cierreCajaRepository.findById(cierreId)
+                .orElseThrow(() -> new NotFoundException("No se encontro el cierre."));
+        if (cierreCaja.getAnulacion() != null) {
+            throw new IllegalStateException("No se puede editar un cierre anulado");
+        }
+
+        PuntoDeVenta puntoDeVenta = puntoDeVentaRepository.findById(request.puntoDeVentaId())
+                        .orElseThrow(() -> new NotFoundException("No se encontro el punto de venta."));
+
+        if (!Objects.equals(puntoDeVenta.getComedor().getId(), request.comedorId())) {
+            throw new IllegalStateException("Punto de venta no pertenece a ese comedor.");
+        }
+
+        cierreCaja.setFechaOperacion(request.fechaOperacion());
+        cierreCaja.setPuntoDeVenta(puntoDeVenta);
+        cierreCaja.setTotalPlatosVendidos(request.totalPlatosVendidos());
+        cierreCaja.setComentarios(request.comentarios());
+
+        cierreCaja = cierreCajaRepository.save(cierreCaja);
+
+        return new CierreCajaResponse(cierreCaja);
     }
 }

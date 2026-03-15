@@ -24,6 +24,7 @@ public class UsuarioController {
 
     // ADMIN
     @PostMapping("/register")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(usuarioService.registrar(request));

@@ -53,9 +53,9 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            throw new RuntimeException("Token expirado", e);
+            throw new ExpiredJwtException(e.getHeader(), e.getClaims(), "Token expirado", e);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new RuntimeException("Token inválido", e);
+            throw new JwtException("Token inválido", e);
         }
     }
 }

@@ -19,6 +19,6 @@ public class PuntoDeVenta {
     @JoinColumn(name = "comedor_id", nullable = false)
     private Comedor comedor;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String nombre;
 }
