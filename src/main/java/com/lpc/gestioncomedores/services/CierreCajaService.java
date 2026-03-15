@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,14 +31,16 @@ public class CierreCajaService {
         Optional<PuntoDeVenta> puntoDeVentaOpt = puntoDeVentaRepository.findById(req.puntoVentaId());
         if(puntoDeVentaOpt.isEmpty()){
             throw new NotFoundException("Punto de venta no encontrado");
-        } else if (cierreCajaRepository.existsByFechaOperacion(req.fechaOperacion())) {
+        }
+        PuntoDeVenta puntoDeVenta = puntoDeVentaOpt.get();
+        if (cierreCajaRepository.existsByFechaOperacionAndPuntoDeVenta(req.fechaOperacion(), puntoDeVenta)) {
             throw new AlreadyRegisteredException("Ya existe un cierre para esta fecha.");
-        } else if (req.fechaOperacion().isAfter(LocalDate.now())) {
+        } else if (req.fechaOperacion().isAfter(LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires")))) {
             throw new BadRequestException("Fecha de operacion no puede ser posterior a hoy.");
         }
         Usuario usuario = usuarioRepository.getReferenceById(Long.parseLong(authentication.getName()));
         CierreCaja cierreCaja = new CierreCaja(
-                puntoDeVentaOpt.get(),
+                puntoDeVenta,
                 req.fechaOperacion(),
                 usuario,
                 req.totalPlatosVendidos(),
