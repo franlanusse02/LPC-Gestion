@@ -31,8 +31,8 @@ public class CierreCajaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CierreCajaResponse>> getAllCierres(){
-        List<CierreCajaResponse> cierres= cierreCajaService.getAll();
+    public ResponseEntity<List<CierreCajaResponse>> getAllCierres(Authentication authentication){
+        List<CierreCajaResponse> cierres= cierreCajaService.getAll(authentication);
         return ResponseEntity.status(HttpStatus.OK).body(cierres);
     }
 
