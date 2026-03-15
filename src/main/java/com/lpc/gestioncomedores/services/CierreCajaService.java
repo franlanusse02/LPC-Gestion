@@ -14,6 +14,7 @@ import com.lpc.gestioncomedores.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -55,7 +56,7 @@ public class CierreCajaService {
                 .stream().filter(c -> c.getCreadoPor().getCuil() == Long.parseLong(authentication.getName())).toList();
         return cierreCajas.stream().map(CierreCajaResponse::new).toList();
     }
-
+    @Transactional
     public List<DetailedCierreCajaResponse> getAllDetailed(){
         List<CierreCaja> cierreCajas = this.cierreCajaRepository.findAll();
         return cierreCajas.stream().map(DetailedCierreCajaResponse::new).toList();
