@@ -1,6 +1,7 @@
 package com.lpc.gestioncomedores.controllers;
 
 import com.lpc.gestioncomedores.dtos.cierreCaja.*;
+import com.lpc.gestioncomedores.models.CierreCaja;
 import com.lpc.gestioncomedores.services.CierreCajaService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -19,7 +20,6 @@ import java.util.List;
 public class CierreCajaController {
     private final CierreCajaService cierreCajaService;
 
-    // ALL
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CierreCajaResponse> createCierreCaja(
@@ -30,47 +30,36 @@ public class CierreCajaController {
             return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
-    // ADMIN || CONTABILIDAD
     @GetMapping
+    public ResponseEntity<List<CierreCajaResponse>> getAllCierres(Authentication authentication){
+        List<CierreCajaResponse> cierres= cierreCajaService.getAll(authentication);
+        return ResponseEntity.status(HttpStatus.OK).body(cierres);
+    }
+
+    @GetMapping("/detailed")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
-    public ResponseEntity<List<?>> getAllCierres(
-            @RequestParam(name = "detailed", required = false, defaultValue = "false") Boolean detailed
-    ){
-        List<?> cierres;
-        if(detailed) {
-            cierres = cierreCajaService.getAllDetailed();
-        }else {
-            cierres = cierreCajaService.getAll();
-        }
+    public ResponseEntity<List<DetailedCierreCajaResponse>> getAllDetailedCierres(){
+        List<DetailedCierreCajaResponse> cierres = cierreCajaService.getAllDetailed();
         return ResponseEntity.status(HttpStatus.OK).body(cierres);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
     public ResponseEntity<?> getCierreById(
-            @RequestParam(name = "detailed", required = false, defaultValue = "false") Boolean detailed,
             @PathVariable Long id
     ){
-        if(detailed) {
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    cierreCajaService.getDetailedById(id)
-                    );
-        }else {
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    cierreCajaService.getById(id)
-            );
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(
+                cierreCajaService.getById(id)
+        );
     }
-    // ADMIN || CONTABILIDAD
-    // GET MAPPING getCierresByUsuario
 
-    //  ENCARGADO
-    // GET MAPPING getCierresByMe
+    @GetMapping("/detailed/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
+    public ResponseEntity<?> getDetailedCierreById(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                cierreCajaService.getDetailedById(id)
+        );
+    }
 
-    //ADMIN || CONTABILIDAD
-    // GET MAPPING getCierresByComedorId
-
-    //ADMIN || CONTABILIDAD
     @PostMapping("/{cierreId}/anular")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
     public ResponseEntity<CierreCajaResponse> anularCierreCaja(
@@ -80,7 +69,7 @@ public class CierreCajaController {
             ){
         return ResponseEntity.ok(cierreCajaService.anularCierre(cierreId, authentication, request));
     }
-    //ADMIN || CONTABILIDAD
+
     @GetMapping("/anulacion/{cierreId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
     public ResponseEntity<AnulacionCierreResponse> getAnulacionCierre(
