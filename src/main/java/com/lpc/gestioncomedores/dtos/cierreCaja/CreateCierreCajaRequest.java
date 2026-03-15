@@ -2,6 +2,7 @@ package com.lpc.gestioncomedores.dtos.cierreCaja;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDate;
 
@@ -10,7 +11,7 @@ public record CreateCierreCajaRequest(
         Long puntoVentaId,
         @NotNull(message = "Fecha de Operacion no puede ser null")
         LocalDate fechaOperacion,
-        @NotNull(message = "Total de platos vendidos no puede ser null.") @Positive(message = "Total de platos vendidos debe ser positivo.")
+        @NotNull(message = "Total de platos vendidos no puede ser null.") @PositiveOrZero(message = "Totl de platos vendidos no puede ser menor a cero.")
         Long totalPlatosVendidos,
 
         String comentarios) {
