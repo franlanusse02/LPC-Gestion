@@ -5,11 +5,11 @@ import com.lpc.gestioncomedores.dtos.cierreCaja.AnularCierreCajaRequest;
 import com.lpc.gestioncomedores.dtos.cierreCaja.CierreCajaResponse;
 import com.lpc.gestioncomedores.dtos.cierreCaja.CreateCierreCajaRequest;
 import com.lpc.gestioncomedores.exceptions.AlreadyRegisteredException;
+import com.lpc.gestioncomedores.exceptions.BadRequestException;
 import com.lpc.gestioncomedores.exceptions.NotFoundException;
 import com.lpc.gestioncomedores.models.CierreCaja;
 import com.lpc.gestioncomedores.models.PuntoDeVenta;
 import com.lpc.gestioncomedores.models.Usuario;
-import com.lpc.gestioncomedores.models.utils.Anulacion;
 import com.lpc.gestioncomedores.models.utils.AnulacionCierre;
 import com.lpc.gestioncomedores.repositories.CierreCajaRepository;
 import com.lpc.gestioncomedores.repositories.PuntoDeVentaRepository;
@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +35,8 @@ public class CierreCajaService {
             throw new NotFoundException("Punto de venta no encontrado");
         } else if (cierreCajaRepository.existsByFechaOperacion(req.fechaOperacion())) {
             throw new AlreadyRegisteredException("Ya existe un cierre para esta fecha.");
+        } else if (req.fechaOperacion().isAfter(LocalDate.now())) {
+            throw new BadRequestException("Fecha de operacion no puede ser posterior a hoy.");
         }
         Usuario usuario = usuarioRepository.getReferenceById(Long.parseLong(authentication.getName()));
         CierreCaja cierreCaja = new CierreCaja(

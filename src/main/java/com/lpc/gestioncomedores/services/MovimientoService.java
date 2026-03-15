@@ -31,8 +31,7 @@ public class MovimientoService{
         Optional<CierreCaja> cierreCajaOpt = cierreCajaRepository.findById(req.cierreCajaId());
         if(cierreCajaOpt.isEmpty()){
             throw new NotFoundException("Cierre no encontrado.");
-        }
-        if (movimientoRepository.existsByCierreCaja_IdAndMedioPago(req.cierreCajaId(), req.medioPago())) {
+        }else if (movimientoRepository.existsByCierreCaja_IdAndMedioPago(req.cierreCajaId(), req.medioPago())) {
             throw new AlreadyRegisteredException("Ya existe una linea con ese medio de pago para ese cierre.");
         }
         Movimiento movimiento = new Movimiento(req.monto(), req.medioPago(), cierreCajaOpt.get(), req.comentarios());

@@ -32,12 +32,20 @@ public class ComedorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
     }
 
-    //ALL
+    //ADMIN || CONTABILIDAD
+    //GET MAPING getComedoresWithCierres
+
+
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ComedorResponse>> getComedores() {
-        return ResponseEntity.ok(service.getComedores());
+    @PreAuthorize("isAuthenticated() and (!#detailed or hasAnyRole('ADMIN', 'CONTABILIDAD'))")
+    public ResponseEntity<List<?>> getComedores(
+            @RequestParam(name = "detailed", defaultValue = "false") boolean detailed
+    ) {
+        return detailed
+                ? ResponseEntity.ok(service.getComedoresWithCierres())
+                : ResponseEntity.ok(service.getComedores());
     }
+
 
     //ALL
     @GetMapping("/{id}")

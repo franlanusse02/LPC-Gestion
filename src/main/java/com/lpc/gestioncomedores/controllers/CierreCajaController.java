@@ -40,9 +40,14 @@ public class CierreCajaController {
         List<CierreCajaResponse> cierres = cierreCajaService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(cierres);
     }
-    // ALL/ENCARGADO
-    // GET MAPPING getCierresByUsuario/getCierresByMe
+    // ADMIN || CONTABILIDAD
+    // GET MAPPING getCierresByUsuario
 
+    //  ENCARGADO
+    // GET MAPPING getCierresByMe
+
+    //ADMIN || CONTABILIDAD
+    // GET MAPPING getCierresByComedorId
 
     //ADMIN || CONTABILIDAD
     @PostMapping("/{cierreId}/anular")
