@@ -57,6 +57,22 @@ public class CierreCajaService {
         return cierreCajas.stream().map(DetailedCierreCajaResponse::new).toList();
     }
 
+    public DetailedCierreCajaResponse getDetailedById(Long id){
+        Optional<CierreCaja> cierreCaja = this.cierreCajaRepository.findById(id);
+        if(cierreCaja.isEmpty()){
+            throw new NotFoundException("No se encontro ese cierre");
+        }
+        else return new DetailedCierreCajaResponse(cierreCaja.get());
+    }
+
+    public CierreCajaResponse getById(Long id){
+        Optional<CierreCaja> cierreCaja = this.cierreCajaRepository.findById(id);
+        if(cierreCaja.isEmpty()){
+            throw new NotFoundException("No se encontro ese cierre");
+        }
+        else return new CierreCajaResponse(cierreCaja.get());
+    }
+
     public CierreCajaResponse anularCierre(Long cierreId, Authentication authentication, AnularCierreCajaRequest request){
 
         Usuario usuario = usuarioRepository.getReferenceById(Long.parseLong(authentication.getName()));

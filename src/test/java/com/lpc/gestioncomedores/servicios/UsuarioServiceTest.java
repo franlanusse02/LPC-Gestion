@@ -49,19 +49,19 @@ class UsuarioServiceTest {
 
     @BeforeEach
     void setUp() {
-        usuario = new Usuario(20304050607L, UsuarioRol.ADMIN, "hashed_password");
+        usuario = new Usuario(20304050607L, "Martin", UsuarioRol.ADMIN, "hashed_password");
     }
 
     // ── registrar ────────────────────────────────────────────────────────────
 
     @Test
     void registrar_withNewCuil_shouldReturnAuthResponse() {
-        RegisterRequest request = new RegisterRequest(20304050607L, UsuarioRol.ADMIN, "password123");
+        RegisterRequest request = new RegisterRequest(20304050607L, "Martin", UsuarioRol.ADMIN, "password123");
 
         when(usuarioRepository.existsByCuil(request.cuil())).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("hashed_password");
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
-        when(jwtTokenProvider.generateToken(20304050607L, "ADMIN")).thenReturn("jwt-token");
+        when(jwtTokenProvider.generateToken(20304050607L, "Martin", "ADMIN")).thenReturn("jwt-token");
 
         LoginResponse response = usuarioService.registrar(request);
 
@@ -73,7 +73,7 @@ class UsuarioServiceTest {
 
     @Test
     void registrar_withExistingCuil_shouldThrowException() {
-        RegisterRequest request = new RegisterRequest(20304050607L, UsuarioRol.ADMIN, "password123");
+        RegisterRequest request = new RegisterRequest(20304050607L, "Martin", UsuarioRol.ADMIN, "password123");
         when(usuarioRepository.existsByCuil(request.cuil())).thenReturn(true);
 
         assertThatThrownBy(() -> usuarioService.registrar(request))
@@ -95,7 +95,7 @@ class UsuarioServiceTest {
         when(authenticationManager.authenticate(any())).thenReturn(
                 new UsernamePasswordAuthenticationToken("20304050607", "password123"));
         when(usuarioRepository.findByCuil(20304050607L)).thenReturn(Optional.of(usuario));
-        when(jwtTokenProvider.generateToken(20304050607L, "ADMIN")).thenReturn("jwt-token");
+        when(jwtTokenProvider.generateToken(20304050607L, "Martin", "ADMIN")).thenReturn("jwt-token");
 
         LoginResponse response = usuarioService.login(request);
 
@@ -141,7 +141,7 @@ class UsuarioServiceTest {
 
     @Test
     void listarTodos_shouldReturnAllUsuarios() {
-        Usuario otro = new Usuario(27000000001L, UsuarioRol.ADMIN, "hash2");
+        Usuario otro = new Usuario(27000000001L, "Martin", UsuarioRol.ADMIN, "hash2");
         when(usuarioRepository.findAll()).thenReturn(List.of(usuario, otro));
 
         List<Usuario> result = usuarioService.listarTodos();

@@ -1,9 +1,6 @@
 package com.lpc.gestioncomedores.controllers;
 
-import com.lpc.gestioncomedores.dtos.cierreCaja.AnulacionCierreResponse;
-import com.lpc.gestioncomedores.dtos.cierreCaja.AnularCierreCajaRequest;
-import com.lpc.gestioncomedores.dtos.cierreCaja.CierreCajaResponse;
-import com.lpc.gestioncomedores.dtos.cierreCaja.CreateCierreCajaRequest;
+import com.lpc.gestioncomedores.dtos.cierreCaja.*;
 import com.lpc.gestioncomedores.services.CierreCajaService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -46,6 +43,23 @@ public class CierreCajaController {
             cierres = cierreCajaService.getAll();
         }
         return ResponseEntity.status(HttpStatus.OK).body(cierres);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONTABILIDAD')")
+    public ResponseEntity<?> getCierreById(
+            @RequestParam(name = "detailed", required = false, defaultValue = "false") Boolean detailed,
+            @PathVariable Long id
+    ){
+        if(detailed) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    cierreCajaService.getDetailedById(id)
+                    );
+        }else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    cierreCajaService.getById(id)
+            );
+        }
     }
     // ADMIN || CONTABILIDAD
     // GET MAPPING getCierresByUsuario
